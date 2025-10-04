@@ -37,7 +37,7 @@ export default function HeroSection() {
         {services.map((item, i) => (
           <div
             key={i}
-            className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 border border-orange-400 cursor-pointer rounded-full text-orange-400 backdrop-blur-md hover:bg-orange-400 hover:text-white transition-colors duration-300"
+            className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 border border-orange-400 cursor-pointer rounded-full text-orange-400 backdrop-blur-md hover:bg-orange-400/20 hover:text-white transition-colors duration-300"
           >
             <span className="text-white sm:text-orange-400">{item.icon}</span>
             <span className="text-white sm:text-base sujoy3">{item.text}</span>
