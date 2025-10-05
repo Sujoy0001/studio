@@ -32,7 +32,7 @@ export default function App() {
         </div>
 
         {/* Heading */}
-        <h2 className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-zinc-950 leading-snug md:leading-tight tracking-tight">
+        <h2 className="text-4xl md:text-6xl font-extrabold text-zinc-950 leading-snug md:leading-tight tracking-tight">
           <div className="mb-2">
             Effortless <span className="text-orange-500">Design</span>
           </div>
