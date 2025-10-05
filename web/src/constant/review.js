@@ -1,6 +1,6 @@
 // src/review.js
-import client1Img from '../assets/images/1.jpg';
-import client2Img from '../assets/images/2.jpg';
+import client1Img from '../assets/clientimg/animaji.jpg';
+import client2Img from '../assets/clientimg/Animesh.jpg';
 import client3Img from '../assets/images/3.jpg';
 import siteImg1 from '../assets/images/web1.jpg';
 import siteImg2 from '../assets/images/web2.jpg';
