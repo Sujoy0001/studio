@@ -31,7 +31,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto flex flex-col items-center">
         
         {/* --- Top Section: Heading --- */}
-        <p className="text-gray-700">Your cup of tea?</p>
+        <p className="text-gray-700 sujoy3">Your cup of tea?</p>
         <h2 className="text-6xl sujoy font-bold mt-2 mb-12">Let's start</h2>
 
         {/* --- Middle Section: Contact Info --- */}

@@ -1,3 +1,4 @@
+// src/components/Header.jsx
 import React, { useState, useEffect } from "react";
 import { 
   HiHome, 
@@ -8,7 +9,7 @@ import {
   HiMenu,
   HiX,
 } from "react-icons/hi";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const navLinks = [
   { name: "Home", href: "/", icon: HiHome },
@@ -21,6 +22,7 @@ const navLinks = [
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -44,7 +46,10 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Link to="/" className="text-zinc-800 font-bold text-2xl sm:text-3xl sujoy2 italic">
+            <Link
+              to="/"
+              className="text-zinc-800 hover:text-orange-400 font-bold text-2xl sm:text-3xl sujoy2 italic"
+            >
               ZcodeStudio
             </Link>
           </div>
@@ -53,13 +58,23 @@ export default function Header() {
           <nav className="hidden lg:flex items-center space-x-2 sm:space-x-4">
             {navLinks.map((link) => {
               const Icon = link.icon;
+              const isActive = location.pathname === link.href;
+
               return (
                 <Link
                   key={link.name}
                   to={link.href}
-                  className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded font-medium text-zinc-700 hover:text-orange-600 hover:bg-orange-100/50 transition-all duration-300 group"
+                  className={`flex sujoy3 text-2xl items-center gap-2 px-3 sm:px-4 py-2 rounded transition-all duration-300 group ${
+                    isActive
+                      ? "text-orange-600 bg-orange-100/60"
+                      : "text-zinc-700 hover:text-orange-600 hover:bg-orange-100/50"
+                  }`}
                 >
-                  <Icon className="text-lg group-hover:scale-110 transition-transform" />
+                  <Icon
+                    className={`text-lg transition-transform ${
+                      isActive ? "scale-110" : "group-hover:scale-110"
+                    }`}
+                  />
                   <span className="text-sm sm:text-base">{link.name}</span>
                 </Link>
               );
@@ -69,9 +84,10 @@ export default function Header() {
           {/* Desktop Contact Button */}
           <div className="hidden lg:block">
             <a href="#contact">
-            <button className="w-auto rounded-full cursor-pointer bg-black py-2 px-12 text-center text-white hover:text-yellow-400 sujoy text-2xl">
+              <button className="w-auto rounded-full cursor-pointer bg-black py-2 px-12 text-center text-white hover:text-yellow-400 sujoy text-2xl">
                 Contact
-            </button></a>
+              </button>
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -80,7 +96,11 @@ export default function Header() {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-zinc-800 hover:bg-orange-100/50 focus:outline-none transition"
             >
-              {isMenuOpen ? <HiX className="h-6 w-6" /> : <HiMenu className="h-6 w-6" />}
+              {isMenuOpen ? (
+                <HiX className="h-6 w-6" />
+              ) : (
+                <HiMenu className="h-6 w-6" />
+              )}
             </button>
           </div>
         </div>
@@ -102,12 +122,18 @@ export default function Header() {
           <div className="px-5 pt-5 pb-8 space-y-4 text-center">
             {navLinks.map((link) => {
               const Icon = link.icon;
+              const isActive = location.pathname === link.href;
+
               return (
                 <Link
                   key={link.name}
                   to={link.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className="flex items-center justify-center gap-3 px-4 py-3 rounded-lg font-semibold text-xl text-zinc-700 hover:text-orange-600 hover:bg-orange-100/50 transition-all duration-300 group"
+                  className={`flex items-center justify-center gap-3 px-4 py-3 rounded-lg font-semibold text-xl transition-all duration-300 group ${
+                    isActive
+                      ? "text-orange-600 bg-orange-100"
+                      : "text-zinc-700 hover:text-orange-600 hover:bg-orange-100/50"
+                  }`}
                 >
                   <Icon className="text-2xl" />
                   <span>{link.name}</span>
@@ -116,14 +142,14 @@ export default function Header() {
             })}
             <div className="pt-6">
               <a href="#contact">
-              <button className="w-auto rounded-full bg-black py-4 px-16 ">
-                <span className="text-yellow-400 sujoy text-2xl">Contact</span>
-              </button></a>
+                <button className="w-auto rounded-full bg-black py-4 px-16">
+                  <span className="text-yellow-400 sujoy text-2xl">Contact</span>
+                </button>
+              </a>
             </div>
           </div>
         </div>
       )}
-
     </header>
   );
 }
