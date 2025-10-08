@@ -83,11 +83,11 @@ export default function Header() {
 
           {/* Desktop Contact Button */}
           <div className="hidden lg:block">
-            <a href="#contact">
+            <Link to="/contact">
               <button className="w-auto rounded-full cursor-pointer bg-black py-2 px-12 text-center text-white hover:text-yellow-400 sujoy text-2xl">
                 Contact
               </button>
-            </a>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -141,11 +141,11 @@ export default function Header() {
               );
             })}
             <div className="pt-6">
-              <a href="#contact">
+              <Link to="/contact" onClick={() => setIsMenuOpen(false)}>
                 <button className="w-auto rounded-full bg-black py-4 px-16">
                   <span className="text-yellow-400 sujoy text-2xl">Contact</span>
                 </button>
-              </a>
+              </Link>
             </div>
           </div>
         </div>
