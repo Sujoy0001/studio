@@ -22,7 +22,7 @@ export const reviews = [
     name: "Animesh Dey",
     company: "Founder, KRISHTI",
     date: "2025-07-15",
-    review: "This website is fantastic! It effectively highlights traditional agriculture and folk creations, making it easy for users to explore the rich cultural heritage. The layout is intuitive, responsive, and the visuals are vibrant. It’s a perfect blend of education, culture, and e-commerce functionality.",
+    review: "I’m absolutely thrilled with my personal portfolio! The design is sleek and modern, making it easy for visitors to navigate and explore my work. Every project and skill is showcased clearly, reflecting my creativity, expertise, and professional growth. The portfolio not only highlights my accomplishments but also gives a true sense of my vision and style. I feel confident sharing it with potential clients, employers, and collaborators.",
     bgImg: siteImg2,
   },
   {

@@ -48,7 +48,7 @@ const Contact = () => {
 
   return (
     <div className="md:max-w-7xl mx-auto text-black font-sans antialiased">
-      <div className="container mx-auto min-h-screen px-8 py-16 lg:py-32">
+      <div className="container mx-auto min-h-screen px-8 py-16 lg:py-24">
 
         {/* Header */}
         <header className="mb-8 md:mb-8 mt-12 mb:mt-0">

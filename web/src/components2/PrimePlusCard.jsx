@@ -1,5 +1,4 @@
-// src/components/PricingSection.jsx
-
+import { Link } from 'react-router-dom';
 import React from 'react';
 import { BsCheck2, BsArrowRight, BsLayoutWtf, BsLayers } from 'react-icons/bs';
 
@@ -113,7 +112,7 @@ export default function PricingSection() {
                   ))}
                 </ul>
 
-                <a href="#contact" className='flex items-center justify-end'>
+                <Link to="/contact" className='flex items-center justify-end'>
                 <button className={`
                   w-full md:w-auto md:self-end cursor-pointer flex items-center justify-center gap-2 mt-4 px-6 py-3 rounded-lg font-semibold transition-transform
                   ${plan.isPremium 
@@ -123,7 +122,7 @@ export default function PricingSection() {
                   active:scale-95
                 `}>
                   Get Started <BsArrowRight />
-                </button></a>
+                </button></Link>
               </div>
 
             </div>

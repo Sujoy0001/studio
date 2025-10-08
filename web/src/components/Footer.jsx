@@ -1,5 +1,4 @@
-// src/components/Footer.jsx
-
+import { Link } from 'react-router-dom';
 import React from 'react';
 import { 
   FaFacebookF, FaInstagram, 
@@ -46,12 +45,12 @@ export default function Footer() {
           </a>
           
           {/* CTA Button */}
-          <a 
-            href="#contact" 
+          <Link
+            to="/contact" 
             className="text-lg font-semibold border border-zinc-800 rounded-full px-8 py-4 hover:bg-orange-500 hover:text-black transition-all duration-300"
           >
             Get a quote
-          </a>
+          </Link>
 
           {/* Phone & Location */}
           <div className="flex items-center gap-4">
