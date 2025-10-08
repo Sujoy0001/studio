@@ -14,11 +14,11 @@ export default function About() {
 
 
   return (
-    <section className="text-black py-6">
+    <section className="text-black px-4 py-6">
       <div className="mx-auto max-w-5xl mt-24">
         {/* Section Header */}
         <div className="mb-12 text-center">
-          <h2 className="text-4xl sujoy font-extrabold lg:text-8xl">
+          <h2 className="text-5xl sujoy font-extrabold lg:text-8xl">
             About Our Agency
           </h2>
           <p className="mt-2 sujoy3 max-w-3xl mx-auto text-lg text-gray-600">

@@ -7,7 +7,7 @@ export default function App() {
   return (
     <div className="flex sujoy3 mt-28 md:mt-8 items-center justify-center min-h-full md:py-24 px-4 lg:px-8">
     
-      <main className="text-center w-full max-w-5xl">
+      <main className="text-center lg:mt-4 w-full max-w-5xl">
         
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
           <div className="flex -space-x-3 sm:-space-x-4">
