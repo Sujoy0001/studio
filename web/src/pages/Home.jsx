@@ -14,7 +14,12 @@ import { useEffect } from 'react'
 export default function Home() {
 
   useEffect(() => {
-    window.scrollTo(0, 0); // Scroll to top when page loads
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }, 100);
   }, []);
 
   return (

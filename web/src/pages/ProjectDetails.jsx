@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { fullstackProjects } from "../constant/fullstackProjects";
 import { frontendDesigns } from "../constant/frontendDesigns";
@@ -9,6 +9,15 @@ export default function ProjectDetails() {
 
   const projectList = type === "frontend" ? frontendDesigns : fullstackProjects;
   const project = projectList.find((p) => p.id === parseInt(id));
+
+  useEffect(() => {
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }, 100);
+  }, []);
 
   if (!project) {
     return (

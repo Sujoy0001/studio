@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
 import { fullstackProjects } from "../constant/fullstackProjects";
 import { frontendDesigns } from "../constant/frontendDesigns";
@@ -7,6 +7,15 @@ import { FaArrowRight } from "react-icons/fa";
 export default function Project() {
   const [selected, setSelected] = useState("fullstack");
   const navigate = useNavigate();
+
+   useEffect(() => {
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }, 100);
+   }, []);
 
   const projects =
     selected === "fullstack" ? fullstackProjects : frontendDesigns;

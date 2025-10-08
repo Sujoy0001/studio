@@ -5,12 +5,14 @@ import { useEffect } from "react";
 
 export default function NotFoundPage() {
 
-    useEffect(() => {
-        // Always scroll to top when component mounts
-        window.scrollTo({
+  useEffect(() => {
+    setTimeout(() => {
+      window.scrollTo({
         top: 0,
-        });
-    }, []);
+        behavior: 'smooth'
+      });
+    }, 100);
+  }, []);
 
 
   return (

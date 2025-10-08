@@ -1,5 +1,6 @@
 import React from "react";
 import "../App.css";
+import { Link } from "react-router-dom";
 
 // Main App Component
 export default function App() {
@@ -64,6 +65,7 @@ export default function App() {
         </p>
 
         {/* Button */}
+        <Link to="/project">
         <button
           className="button mt-6 sm:mt-8"
           style={{ "--clr": "#ff6f00" }} // saffron/orange shade for India 🇮🇳
@@ -98,6 +100,7 @@ export default function App() {
           </span>
           Explore All
         </button>
+        </Link>
       </main>
     </div>
   );

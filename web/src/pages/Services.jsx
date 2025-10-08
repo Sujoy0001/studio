@@ -1,9 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ServicesIcons from "../components2/ServicesIcons";
 import Workflow from "../components2/Workflow";
 import ServicesInfo from "../components2/ServicesInfo";
 
 export default function Services() {
+
+    useEffect(() => {
+        setTimeout(() => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+        }, 100);
+    }, []);
+
+
     return (
         <>
         <div className="w-full h-full mt-28 lg:mt-32">
