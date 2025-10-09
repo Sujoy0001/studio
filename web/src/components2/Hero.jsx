@@ -1,5 +1,6 @@
 import React from "react";
 import "../App.css";
+import "../App2.css";
 import { Link } from "react-router-dom";
 
 // Main App Component

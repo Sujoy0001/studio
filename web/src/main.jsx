@@ -11,6 +11,7 @@ import Contact from "./pages/Contact.jsx";
 import Project from "./pages/Project.jsx";
 import ProjectDetails from "./pages/ProjectDetails.jsx";
 import About from "./pages/About.jsx";
+import Loader from "./components/Loading.jsx";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,7 @@ const router = createBrowserRouter([
       { path: "contact", element: <Contact /> },
       { path: "project", element: <Project /> },
       { path: "project/:type/:id", element: <ProjectDetails /> },
+      // { path: "loader", element: <Loader /> },
       { path: "*", element: <NotFoundPage /> },
       { path: "sujoy", element: <App /> },
     ]
