@@ -42,7 +42,7 @@ export default function About() {
 
             <h3 className="text-3xl font-bold sujoy">Our Expertise</h3>
             <p className="text-gray-700 sujoy3">
-              Our team is skilled in React, Django, FastAPI, Tailwind CSS, and more. We handle both frontend and backend development, providing end-to-end solutions that deliver a seamless digital experience.
+              Our team is skilled in React, Node JS, Next JS, Django, FastAPI, Tailwind CSS and more. We handle both frontend and backend development, providing end-to-end solutions that deliver a seamless digital experience.
             </p>
           </div>
 
