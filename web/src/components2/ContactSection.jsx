@@ -109,7 +109,7 @@ export default function ContactSection() {
           <div className="flex flex-col sm:flex-row gap-6 justify-center mt-8 pt-8 border-t border-gray-200">
             <div className="flex font-semibold font-2xl sujoy3 items-center gap-3 text-white">
               <BsEnvelope size={18} />
-              <span>sujoygarai89@gmail.com</span>
+              <span>revoxstudio.site@gmail.com</span>
             </div>
             <div className="flex items-center font-2xl sujoy gap-3 text-white">
               <BsPhone size={18} />

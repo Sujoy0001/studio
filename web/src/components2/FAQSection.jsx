@@ -6,11 +6,11 @@ export default function FAQSection() {
 
   const faqs = [
     {
-      question: "Why choose ZcodeStudio instead of hiring a full-time developer or designer?",
-      answer: "ZcodeStudio gives you flexible, project-based solutions without the high costs of a full-time hire. You get access to a skilled team specializing in design and development, tailored to your needs, at a fraction of the cost."
+      question: "Why choose Revox Studio instead of hiring a full-time developer or designer?",
+      answer: "Revox Studio gives you flexible, project-based solutions without the high costs of a full-time hire. You get access to a skilled team specializing in design and development, tailored to your needs, at a fraction of the cost."
     },
     {
-      question: "How do I request a project with ZcodeStudio?",
+      question: "How do I request a project with Revox Studio?",
       answer: "Just reach out through our website or email. We'll schedule a quick consultation to understand your goals, then share a proposal, pricing, and timeline for your project."
     },
     {
@@ -22,7 +22,7 @@ export default function FAQSection() {
       answer: "We offer multiple revision rounds to make sure the final result matches your vision. Our process includes regular feedback checkpoints, so you’ll never feel out of the loop."
     },
     {
-      question: "What’s the ZcodeStudio workflow like?",
+      question: "What’s the Revox Studio workflow like?",
       answer: "Our process includes discovery & strategy, wireframing, UI/UX design, development, and final delivery. We work closely with you at every stage to ensure your project is both functional and visually stunning."
     },
     {
@@ -49,7 +49,7 @@ export default function FAQSection() {
             Your Questions, Answered
           </h1>
           <p className="text-xl text-zinc-600 max-w-2xl mx-auto">
-            Helping you understand our process and offerings at ZcodeStudio.
+            Helping you understand our process and offerings at Revox Studio.
           </p>
         </div>
 

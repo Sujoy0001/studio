@@ -48,9 +48,9 @@ export default function Header() {
           <div className="flex-shrink-0">
             <Link
               to="/"
-              className="text-zinc-800 hover:text-orange-400 font-bold text-2xl sm:text-3xl sujoy2 italic"
+              className="text-black hover:text-orange-400 font-bold text-2xl sm:text-3xl sujoy4 italic"
             >
-              ZcodeStudio
+              Revox Studio
             </Link>
           </div>
 

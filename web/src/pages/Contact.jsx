@@ -97,7 +97,7 @@ const Contact = () => {
                     Get in touch
                   </h2>
                   <p className="font-medium text-lg hover:opacity-75 transition-opacity cursor-pointer">
-                    <a href="mailto:sujoygarai89@gmail.com">sujoygarai89@gmail.com</a>
+                    <a href="mailto:revoxstudio.site@gmail.com">revoxstudio.site@gmail.com</a>
                   </p>
                 </div>
                 <div>

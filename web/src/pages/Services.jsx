@@ -24,7 +24,7 @@ export default function Services() {
                 </h1>
 
                 <p class="text-md md:text-lg sujoy3 text-center text-gray-700 max-w-3xl mx-auto">
-                    At ZcodeStudio, we craft modern websites and web applications that help startups, creatives, and businesses shine online. From sleek portfolios and e-commerce platforms to custom solutions for art, culture, and technology, our services combine innovation, design, and performance to bring your vision to life.
+                    At Revox Studio, we craft modern websites and web applications that help startups, creatives, and businesses shine online. From sleek portfolios and e-commerce platforms to custom solutions for art, culture, and technology, our services combine innovation, design, and performance to bring your vision to life.
                 </p>
             </div>
             <Workflow />

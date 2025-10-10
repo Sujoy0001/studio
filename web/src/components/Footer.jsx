@@ -38,7 +38,7 @@ export default function Footer() {
           
           {/* Email */}
           <a 
-            href="mailto:sujoygarai89@gmail.com" 
+            href="mailto:revoxstudio.site@gmail.com" 
             className="text-2xl md:text-3xl font-medium border-b border-zinc-700 pb-2 hover:border-orange-500 transition-colors"
           >
             hello@gamil.com

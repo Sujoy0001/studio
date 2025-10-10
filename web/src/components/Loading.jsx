@@ -43,7 +43,7 @@ const Loader = () => {
   }, [charIndex, deleting, index]);
 
   return (
-    <div className="fixed inset-0 flex items-center min-h-screen justify-center containerx text-black">
+    <div className="fixed inset-0 flex items-center min-h-screen justify-center text-black">
       <div className="flex flex-col items-center gap-5 p-8">
         <div className="flex items-center gap-2 text-4xl md:text-8xl font-semibol sujoy font-mono">
           <span>{text}</span>
