@@ -12,6 +12,8 @@ import Project from "./pages/Project.jsx";
 import ProjectDetails from "./pages/ProjectDetails.jsx";
 import About from "./pages/About.jsx";
 import Loader from "./components/Loading.jsx";
+import TeamList from "./pages/TeamList.jsx";
+import TeamMember from "./pages/TeamMember.jsx";
 
 const router = createBrowserRouter([
   {
@@ -24,6 +26,8 @@ const router = createBrowserRouter([
       { path: "contact", element: <Contact /> },
       { path: "project", element: <Project /> },
       { path: "project/:type/:id", element: <ProjectDetails /> },
+      { path: "team", element: <TeamList /> },
+      { path: "/team/:name", element: <TeamMember /> },
       // { path: "loader", element: <Loader /> },
       { path: "*", element: <NotFoundPage /> },
       { path: "sujoy", element: <App /> },

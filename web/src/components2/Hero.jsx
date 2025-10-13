@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 // Main App Component
 export default function App() {
   return (
-    <div className="flex sujoy3 mt-28 md:mt-8 items-center justify-center min-h-full md:py-24 px-4 lg:px-8">
+    <div className="flex sujoy3 mt-28 md:mt-8 xl:mt-2 items-center justify-center min-h-full md:py-24 px-4 lg:px-8">
     
       <main className="text-center lg:mt-4 w-full max-w-5xl">
         
@@ -34,7 +34,7 @@ export default function App() {
         </div>
 
         {/* Heading */}
-        <h2 className="text-4xl md:text-6xl font-extrabold text-zinc-950 leading-snug md:leading-tight tracking-tight">
+        <h2 className="text-4xl md:text-6xl xl:text-7xl font-extrabold text-zinc-950 leading-snug md:leading-tight tracking-tight">
           <div className="mb-2">
             Effortless <span className="text-orange-500">Design</span>
           </div>

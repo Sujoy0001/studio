@@ -48,7 +48,7 @@ export const fullstackProjects = [
     tech: ["React", "Python", "Fast API","Tailwind CSS", "MongoDB"],
     review: {
       img: client3,
-      name: "Animesh Dey",
+      name: "Sujoy Garai",
       role: "Creater of TCA System",
       text: "We are thrilled with the Teacher Course Allotments System! The platform is intuitive, easy to navigate, and has significantly simplified the process of assigning courses to teachers. It efficiently manages schedules and workloads, reducing errors and saving valuable time. The UI is clean and user-friendly, perfectly aligning with our vision for a smooth administrative experience.",
     },

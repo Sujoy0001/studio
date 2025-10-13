@@ -41,7 +41,7 @@ export default function Footer() {
             href="mailto:revoxstudio.site@gmail.com" 
             className="text-2xl md:text-3xl font-medium border-b border-zinc-700 pb-2 hover:border-orange-500 transition-colors"
           >
-            hello@gamil.com
+            hello@gmail.com
           </a>
           
           {/* CTA Button */}
