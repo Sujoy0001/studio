@@ -14,6 +14,8 @@ import About from "./pages/About.jsx";
 import Loader from "./components/Loading.jsx";
 import TeamList from "./pages/TeamList.jsx";
 import TeamMember from "./pages/TeamMember.jsx";
+import Layout02 from "./layout/Layout02.jsx";
+import AdminTeamPage from "./admin/AdminTeamPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -31,6 +33,13 @@ const router = createBrowserRouter([
       // { path: "loader", element: <Loader /> },
       { path: "*", element: <NotFoundPage /> },
       { path: "sujoy", element: <App /> },
+    ]
+  },
+  {
+    path: "/admin",
+    element: <Layout02 />,
+    children: [
+      { index: true, element: <AdminTeamPage /> },
     ]
   }
 ])
