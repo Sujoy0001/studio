@@ -28,7 +28,6 @@ const router = createBrowserRouter([
       { path: "contact", element: <Contact /> },
       { path: "project", element: <Project /> },
       { path: "project/:type/:id", element: <ProjectDetails /> },
-      { path: "team", element: <TeamList /> },
       { path: "/team/:name", element: <TeamMember /> },
       // { path: "loader", element: <Loader /> },
       { path: "*", element: <NotFoundPage /> },
