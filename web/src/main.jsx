@@ -14,8 +14,6 @@ import About from "./pages/About.jsx";
 import Loader from "./components/Loading.jsx";
 import TeamList from "./pages/TeamList.jsx";
 import TeamMember from "./pages/TeamMember.jsx";
-import Layout02 from "./layout/Layout02.jsx";
-import AdminTeamPage from "./admin/AdminTeamPage.jsx";
 
 const router = createBrowserRouter([
   {
