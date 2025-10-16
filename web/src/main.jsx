@@ -34,13 +34,6 @@ const router = createBrowserRouter([
       { path: "sujoy", element: <App /> },
     ]
   },
-  {
-    path: "/admin",
-    element: <Layout02 />,
-    children: [
-      { index: true, element: <AdminTeamPage /> },
-    ]
-  }
 ])
 
 ReactDOM.createRoot(document.getElementById('root')).render(
