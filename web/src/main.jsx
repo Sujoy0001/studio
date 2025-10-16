@@ -12,7 +12,6 @@ import Project from "./pages/Project.jsx";
 import ProjectDetails from "./pages/ProjectDetails.jsx";
 import About from "./pages/About.jsx";
 import Loader from "./components/Loading.jsx";
-import TeamList from "./pages/TeamList.jsx";
 import TeamMember from "./pages/TeamMember.jsx";
 
 const router = createBrowserRouter([
