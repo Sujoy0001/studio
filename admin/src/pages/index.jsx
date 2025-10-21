@@ -82,9 +82,9 @@ export default function Dashboard({ dashboardData }) {
   // Data for action buttons - now with href links
   const actionsList = [
     { text: "Add New Project", icon: FaPlus, href: "add-project", className: "bg-blue-800 hover:bg-blue-600 text-white" },
-    { text: "Add New Member", icon: FaUsers, href: "/team/add", className: "bg-green-800 hover:bg-green-600 text-white" },
+    { text: "Add New Member", icon: FaUsers, href: "add-member", className: "bg-green-800 hover:bg-green-600 text-white" },
     { text: "Message project", icon: FaEnvelope, href: "manage-project", className: "bg-yellow-800 hover:bg-yellow-600 text-white" },
-    { text: "Manage Members", icon: FaUserCog, href: "/team/manage", className: "bg-gray-800 hover:bg-gray-600 text-white" }
+    { text: "Manage Members", icon: FaUserCog, href: "manage-member", className: "bg-gray-800 hover:bg-gray-600 text-white" }
   ];
 
   return (
