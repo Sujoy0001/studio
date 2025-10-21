@@ -9,6 +9,7 @@ import ManageProject from './pages/ManageProject.jsx';
 import ManageMembers from './pages/ManageMembers.jsx';
 import Index from './pages/index.jsx';
 import Layout01 from './layout/Layout01.jsx';
+import LoginPage from './pages/LoginPage.jsx';
 
 const router = createBrowserRouter([
   {
