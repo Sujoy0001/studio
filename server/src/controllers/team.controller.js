@@ -22,24 +22,24 @@ const createTeamMember = asyncHandler(async (req, res, next) => {
     if (checkUrlName) {
         throw new ApiError(409, "Team member with this urlName already exists");
     }
-
+    let imgMongo = img;
     if (req.file) {
         const {buffer, mimetype} = req.file;
         const base64Image = bufferToBase64(buffer, mimetype);
         const uploadResult = await uploadOnCloudinary(base64Image, "image");
-        img = uploadResult.secure_url;
+        imgMongo = uploadResult.secure_url;
     }
 
     const linkDoc = links ? await Link.create(links) : null;
 
     const teamMember = await Team.create({
-        name,
+        name : name,
         role,
         description,
         skills,
         email,
         links: linkDoc ? linkDoc._id : null,
-        img,
+        img: imgMongo,
         urlName
     });
     if (!teamMember) {
@@ -79,13 +79,16 @@ const editTeamMember = asyncHandler(async (req, res, next) => {
         throw new ApiError(404, "Team member not found");
     }
 
+    let imgMongo = img;
     if (req.file) {
         if (teamMember.img) {
             const publicId = getPublicId(teamMember.img);
             await deleteFromCloudinary(publicId, "image");
         }
-        const uploadResult = await uploadOnCloudinary(req.file.path, "image");
-        img = uploadResult.secure_url;
+        const {buffer, mimetype} = req.file;
+        const base64Image = bufferToBase64(buffer, mimetype);
+        const uploadResult = await uploadOnCloudinary(base64Image, "image");
+        imgMongo = uploadResult.secure_url;
     }
 
     const linkId = teamMember.links;
@@ -108,7 +111,7 @@ const editTeamMember = asyncHandler(async (req, res, next) => {
         skills,
         email,
         links: newLinkDoc ? newLinkDoc._id : linkId,
-        img,
+        img: imgMongo,
         urlName
     }, { new: true });
 
