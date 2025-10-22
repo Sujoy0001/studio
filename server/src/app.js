@@ -15,10 +15,10 @@ app.use(express.static("public"))
 app.use(cookieParser())
 
 import userRouter from "./routes/user.router.js"
-
+import teamRouter from "./routes/team.route.js"
 
 app.use("/api/v1/user", userRouter)
-
+app.use("/api/v1/team", teamRouter)
 
 app.get("/", (req, res) => {
     res.json({ message: "working" })
