@@ -16,7 +16,7 @@ const navLinks = [
   { name: "About", href: "/about", icon: HiUser },
   { name: "Services", href: "/service", icon: HiBriefcase },
   { name: "Projects", href: "/project", icon: HiPhotograph },
-  { name: "Blog", href: "/blog", icon: HiNewspaper },
+  { name: "Post", href: "/post", icon: HiNewspaper },
 ];
 
 export default function Header() {
