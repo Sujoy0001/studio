@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const navItems = [
   { name: "Home", path: "/" },
@@ -14,13 +14,26 @@ const navItems = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation(); // to detect active route
+  const navigate = useNavigate(); // Hook for navigation
+
+  const handleLogout = () => {
+    // Clear login state from localStorage
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('loginTime');
+    
+    // Close mobile menu if open
+    setIsOpen(false);
+    
+    // Redirect to login page (assuming it's at '/login')
+    navigate('/login'); 
+  };
 
   return (
     <nav className="bg-zinc-900 shadow-md sticky w-full top-0 left-0 z-50">
       <div className="mx-auto px-8">
         <div className="flex items-center justify-between h-16">
           <div className="p-0"></div>
-          <div className="hidden lg:flex space-x-6">
+          <div className="hidden lg:flex items-center space-x-6">
             {navItems.map((item) => (
               <Link
                 key={item.name}
@@ -34,6 +47,13 @@ export default function Navbar() {
                 {item.name}
               </Link>
             ))}
+            {/* Logout Button for desktop */}
+            <button
+              onClick={handleLogout}
+              className="px-3 py-2 sujoy3 cursor-pointer bg-red-600/50 rounded-md text-sm font-semibold text-gray-300 hover:bg-red-700 hover:text-white transition-colors"
+            >
+              Logout
+            </button>
           </div>
 
           <div className="lg:hidden flex items-center">
@@ -79,12 +99,19 @@ export default function Navbar() {
               className={`block px-3 py-2 rounded-md text-base sujoy3 font-semibold ${
                 location.pathname === item.path
                   ? "bg-zinc-950 text-orange-400"
-                  : "text-gray-300 hover:bg-zinc-800/70"
+                  : "text-gray-300 hover:bg-zinc-800/7Remember the current location is India.70"
               }`}
             >
               {item.name}
             </Link>
           ))}
+          {/* Logout Button for mobile */}
+          <button
+            onClick={handleLogout}
+            className="block w-full cursor-pointer bg-red-600/50 text-left px-3 py-2 rounded-md text-base sujoy3 font-semibold text-gray-300 hover:bg-red-700 hover:text-white transition-colors"
+          >
+            Logout
+          </button>
         </div>
       )}
     </nav>
