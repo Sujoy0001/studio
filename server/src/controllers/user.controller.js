@@ -59,7 +59,36 @@ const loginUser = asyncHandler(async (req, res, next) => {
         .status(200)
         .cookie("refreshToken", refreshToken, options)
         .cookie("accessToken", accessToken, options)
-        .json(new ApiResponse(200, { accessToken, refreshToken, user }, "Login successful"));
+        .json(new ApiResponse(200, { accessToken, refreshToken, user : {
+            _id : user._id,
+            email : user.email,
+        } }, "Login successful"));
 })
 
-export { loginUser }
+const currentUser = asyncHandler(async (req, res, next) => {
+    const userId = req.user._id;
+    const user = await User.findById(userId).select("-password -refreshToken");
+    if(!user) {
+        throw new ApiError(404, "User not found");
+    }
+    return res
+        .status(200)
+        .json(new ApiResponse(200, user, "User fetched successfully"));
+})
+
+const logoutUser = asyncHandler(async (req, res, next) => {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+    if(!user) {
+        throw new ApiError(404, "User not found");
+    }
+    user.refreshToken = null;
+    await user.save({ validateBeforeSave: false });
+    return res
+        .status(200)
+        .clearCookie("refreshToken", options)
+        .clearCookie("accessToken", options)
+        .json(new ApiResponse(200, null, "Logout successful"));
+})
+
+export { loginUser, currentUser, logoutUser }

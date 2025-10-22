@@ -12,13 +12,20 @@ const projectSchema = new Schema({
     description : {
         type : String,
     },
-    tech : [String],
+    tech : [{
+        type : String,
+        required : true,
+    }],
     review : [{
         type : Schema.Types.ObjectId,
         ref : "Review",
     }],
     liveLink : {
         type : String,
+    },
+    type : {
+        type : String,
+        required : true,
     }
 }, { timestamps : true });
 
