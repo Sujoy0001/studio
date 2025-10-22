@@ -16,14 +16,14 @@ const projectSchema = new Schema({
         type : String,
         required : true,
     }],
-    review : [{
+    review : {
         type : Schema.Types.ObjectId,
         ref : "Review",
-    }],
+    },
     liveLink : {
         type : String,
     },
-    type : {
+    category : {
         type : String,
         required : true,
     }
