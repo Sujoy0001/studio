@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, LogIn, Shield, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
 
-// Pre-saved email and password combinations
 const validCredentials = [
   { email: 'admin@revoxstudio.com', password: 'Admin@123' },
-  { email: 'sujoy@revoxstudio.com', password: 'Sujoy@2024' },
+  { email: 'sujogarai89@gmail.com', password: 'Sujoy@2025' },
   { email: 'manager@revoxstudio.com', password: 'Manager@456' }
 ];
 
-const LoginPage = () => {
+export default function LoginPage() {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -20,24 +19,6 @@ const LoginPage = () => {
   const [attempts, setAttempts] = useState(0);
   const [isLocked, setIsLocked] = useState(false);
   const [lockTime, setLockTime] = useState(0);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  // Check if user is already logged in on component mount
-  useEffect(() => {
-    const savedLogin = localStorage.getItem('isLoggedIn');
-    const loginTime = localStorage.getItem('loginTime');
-    
-    if (savedLogin && loginTime) {
-      const timeDiff = Date.now() - parseInt(loginTime);
-      // Auto logout after 24 hours
-      if (timeDiff < 24 * 60 * 60 * 1000) {
-        setIsLoggedIn(true);
-      } else {
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('loginTime');
-      }
-    }
-  }, []);
 
   // Handle lock timer
   useEffect(() => {
@@ -92,19 +73,20 @@ const LoginPage = () => {
       );
 
       if (isValid) {
-        setSuccess('Login successful! Redirecting to admin panel...');
+        setSuccess('Login successful! Redirecting...');
         
-        // Save login state
+        // Save login state to localStorage
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('loginTime', Date.now().toString());
         
         // Reset attempts on successful login
         setAttempts(0);
         
-        // Set logged in state
+        // Redirect to "/" after a short delay
         setTimeout(() => {
-          setIsLoggedIn(true);
-        }, 1000);
+          window.location.href = '/';
+        }, 1000); // 1-second delay to show success message
+
       } else {
         const newAttempts = attempts + 1;
         setAttempts(newAttempts);
@@ -124,128 +106,14 @@ const LoginPage = () => {
     }
   };
 
-  const handleDemoLogin = (demoNumber) => {
-    const demoCred = validCredentials[demoNumber - 1];
-    setFormData({
-      email: demoCred.email,
-      password: demoCred.password
-    });
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('loginTime');
-    setIsLoggedIn(false);
-    setFormData({ email: '', password: '' });
-    setError('');
-    setSuccess('');
-  };
-
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // If user is logged in, show admin panel
-  if (isLoggedIn) {
-    return (
-      <div className="min-h-screen bg-zinc-900 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Admin Panel Header */}
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center">
-                <Shield className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-bold text-white mb-2">
-                  Admin Panel
-                </h1>
-                <p className="text-zinc-400">
-                  Welcome to your administration dashboard
-                </p>
-              </div>
-            </div>
-            
-            <button
-              onClick={handleLogout}
-              className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center gap-2 mx-auto"
-            >
-              <LogIn className="w-4 h-4 rotate-180" />
-              Logout
-            </button>
-          </div>
-
-          {/* Admin Dashboard Content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {/* Stats Cards */}
-            <div className="bg-zinc-800 rounded-lg p-6 border border-zinc-700">
-              <h3 className="text-lg font-semibold text-white mb-2">Total Projects</h3>
-              <p className="text-3xl font-bold text-blue-400">12</p>
-              <p className="text-zinc-400 text-sm mt-2">Active projects in portfolio</p>
-            </div>
-            
-            <div className="bg-zinc-800 rounded-lg p-6 border border-zinc-700">
-              <h3 className="text-lg font-semibold text-white mb-2">Team Members</h3>
-              <p className="text-3xl font-bold text-green-400">8</p>
-              <p className="text-zinc-400 text-sm mt-2">Active team members</p>
-            </div>
-            
-            <div className="bg-zinc-800 rounded-lg p-6 border border-zinc-700">
-              <h3 className="text-lg font-semibold text-white mb-2">Messages</h3>
-              <p className="text-3xl font-bold text-yellow-400">5</p>
-              <p className="text-zinc-400 text-sm mt-2">Unread messages</p>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="bg-zinc-800 rounded-lg p-8 border border-zinc-700">
-            <h2 className="text-2xl font-bold text-white mb-6">Quick Actions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <button className="p-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors">
-                Manage Projects
-              </button>
-              <button className="p-4 bg-green-600 hover:bg-green-700 rounded-lg text-white transition-colors">
-                Manage Team
-              </button>
-              <button className="p-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-white transition-colors">
-                View Analytics
-              </button>
-              <button className="p-4 bg-orange-600 hover:bg-orange-700 rounded-lg text-white transition-colors">
-                Settings
-              </button>
-            </div>
-          </div>
-
-          {/* Recent Activity */}
-          <div className="bg-zinc-800 rounded-lg p-8 border border-zinc-700 mt-8">
-            <h2 className="text-2xl font-bold text-white mb-6">Recent Activity</h2>
-            <div className="space-y-4">
-              {[
-                { action: 'Project Updated', item: 'Dokhra E-commerce', time: '2 hours ago' },
-                { action: 'New Member Added', item: 'John Doe', time: '5 hours ago' },
-                { action: 'Project Created', item: 'Mobile Banking App', time: '1 day ago' },
-                { action: 'Settings Updated', item: 'Site Configuration', time: '2 days ago' }
-              ].map((activity, index) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-zinc-700/50 rounded-lg">
-                  <div>
-                    <p className="text-white font-medium">{activity.action}</p>
-                    <p className="text-zinc-400 text-sm">{activity.item}</p>
-                  </div>
-                  <span className="text-zinc-500 text-sm">{activity.time}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Login Form
   return (
-    <div className="min-h-screen bg-zinc-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
@@ -352,48 +220,10 @@ const LoginPage = () => {
               )}
             </button>
 
-            {/* Demo Accounts Section */}
-            <div className="border-t border-zinc-700 pt-6">
-              <h3 className="text-sm font-medium text-zinc-400 mb-4 text-center">
-                Demo Accounts
-              </h3>
-              <div className="grid grid-cols-3 gap-3">
-                {[1, 2, 3].map((num) => (
-                  <button
-                    key={num}
-                    type="button"
-                    onClick={() => handleDemoLogin(num)}
-                    disabled={isLocked || isLoading}
-                    className="py-2 px-3 bg-zinc-700 hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed border border-zinc-600 rounded-lg text-zinc-300 text-xs font-medium transition-colors"
-                  >
-                    Demo {num}
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-zinc-500 text-center mt-3">
-                Click to auto-fill demo credentials
-              </p>
-            </div>
+            
           </div>
         </form>
-
-        {/* Credentials Info */}
-        <div className="bg-zinc-800/50 rounded-lg p-6 border border-zinc-700">
-          <h4 className="text-sm font-medium text-zinc-300 mb-3 text-center">
-            Available Credentials
-          </h4>
-          <div className="space-y-2">
-            {validCredentials.map((cred, index) => (
-              <div key={index} className="text-xs text-zinc-400">
-                <span className="font-medium">Demo {index + 1}:</span>{' '}
-                {cred.email} / {cred.password}
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );
 };
-
-export default LoginPage;

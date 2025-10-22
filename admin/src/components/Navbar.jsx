@@ -7,6 +7,8 @@ const navItems = [
   { name: "Add Member", path: "/add-member" },
   { name: "Message Project", path: "/manage-project" },
   { name: "Manage Members", path: "/manage-members" },
+  { name: "Add Post", path: "/add-post" },
+  { name: "Manage Post", path: "/manage-post" },
 ];
 
 export default function Navbar() {

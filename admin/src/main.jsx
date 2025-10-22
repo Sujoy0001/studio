@@ -10,6 +10,8 @@ import ManageMembers from './pages/ManageMembers.jsx';
 import Index from './pages/index.jsx';
 import Layout01 from './layout/Layout01.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import ManagePostsPage from './pages/MannagePost.jsx';
+import AddPostPage from './pages/AddPost.jsx';
 
 const router = createBrowserRouter([
   {
@@ -21,6 +23,9 @@ const router = createBrowserRouter([
       { path: "add-member", element: <AddMember /> },
       { path: "manage-project", element: <ManageProject /> },
       { path: "manage-members", element: <ManageMembers /> },
+      { path: "add-post", element: <AddPostPage /> },
+      { path: "manage-post", element: <ManagePostsPage /> },
+      { path: "login", element: <LoginPage /> },
     ]
   }
 ])
