@@ -12,20 +12,54 @@ import Layout01 from './layout/Layout01.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import ManagePostsPage from './pages/MannagePost.jsx';
 import AddPostPage from './pages/AddPost.jsx';
+import {
+  ProtectRoute,
+  AuthenticatedUserRoute
+} from "./utils/userAuthenticated.jsx"
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Layout01 />,
     children: [
-      { index: true, element: <Index /> },
-      { path: "add-project", element: <AddProject /> },
-      { path: "add-member", element: <AddMember /> },
-      { path: "manage-project", element: <ManageProject /> },
-      { path: "manage-members", element: <ManageMembers /> },
-      { path: "add-post", element: <AddPostPage /> },
-      { path: "manage-post", element: <ManagePostsPage /> },
-      { path: "login", element: <LoginPage /> },
+      {
+        index: true, element: (
+          <ProtectRoute><Index /></ProtectRoute>
+        )
+      },
+      {
+        path: "add-project", element: (
+          <ProtectRoute><AddProject /></ProtectRoute>
+        )
+      },
+      {
+        path: "add-member", element: (
+          <ProtectRoute><AddMember /></ProtectRoute>
+        )
+      },
+      {
+        path: "manage-project", element: (
+          <ProtectRoute><ManageProject /></ProtectRoute>
+        )
+      },
+      {
+        path: "manage-members", element: (
+          <ProtectRoute><ManageMembers /></ProtectRoute>
+        )
+      },
+      {
+        path: "add-post", element: (
+          <ProtectRoute><AddPostPage /></ProtectRoute>
+        )
+      },
+      {
+        path: "manage-post", element: (
+          <ProtectRoute><ManagePostsPage /></ProtectRoute>
+        )
+      },
+      { path: "login", element: (
+        <AuthenticatedUserRoute><LoginPage /></AuthenticatedUserRoute>
+      ) },
     ]
   }
 ])

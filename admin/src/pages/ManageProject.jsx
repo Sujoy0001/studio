@@ -1,60 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Edit, Trash2, Eye, X, Save, Plus, Upload, Image as ImageIcon, Search } from 'lucide-react';
-
-// Sample data
-const initialProjects = [
-  {
-    id: 1,
-    name: "Dokhra E-commerce Website",
-    img: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=300&fit=crop",
-    description: "A beautifully crafted e-commerce platform showcasing traditional Dokhra handcrafted art pieces. The website allows users to explore, purchase, and learn about the artisan process behind each creation, connecting local artisans to global customers.",
-    tech: ["Node.js", "React", "MongoDB", "TailwindCSS"],
-    review: {
-      img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-      name: "Animesh maji",
-      role: "Founder of Uniquedokhraworkshop",
-      text: "The Dokra website is an absolute masterpiece! The design beautifully showcases the intricate metal art, and the product pages are clean, visually appealing, and easy to navigate. The site truly captures the essence of traditional craftsmanship while maintaining a modern, user-friendly interface. Highly recommended for art lovers! Highly recommend their work!",
-    },
-    liveLink: "https://www.uniquedokraworkshop.com",
-  },
-  {
-    id: 2,
-    name: "Portfolio Website",
-    img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop",
-    description: "A modern portfolio website showcasing creative work and projects.",
-    tech: ["React", "JavaScript", "CSS3"],
-    review: {
-      img: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face",
-      name: "John Doe",
-      role: "Creative Director",
-      text: "Excellent work on the portfolio design! The website perfectly represents my brand and showcases my work in a professional manner.",
-    },
-    liveLink: "https://example.com",
-  },
-  {
-    id: 3,
-    name: "Mobile Banking App",
-    img: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=300&fit=crop",
-    description: "A secure and user-friendly mobile banking application with advanced features.",
-    tech: ["React Native", "Node.js", "Firebase", "TypeScript"],
-    review: {
-      img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-      name: "Sarah Johnson",
-      role: "Product Manager at FinTech Corp",
-      text: "The mobile banking app exceeded our expectations. The security features are robust and the user interface is intuitive.",
-    },
-    liveLink: "https://bankingapp.com",
-  }
-];
+import projectStore from '../store/projectStore.js';
 
 const ManageProjects = () => {
-  const [projects, setProjects] = useState(initialProjects);
-  const [filteredProjects, setFilteredProjects] = useState(initialProjects);
+  const [filteredProjects, setFilteredProjects] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingProject, setEditingProject] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+
+  const { 
+    projects, 
+    getAllProjects, 
+    deleteProject, 
+    editProject,
+    isLoading: storeLoading,
+    error 
+  } = projectStore();
 
   // Form state for editing
   const [editForm, setEditForm] = useState({
@@ -64,6 +27,7 @@ const ManageProjects = () => {
     liveLink: '',
     newTech: '',
     img: '',
+    category: 'frontend',
     review: {
       name: '',
       role: '',
@@ -72,35 +36,45 @@ const ManageProjects = () => {
     }
   });
 
+  // Load projects on component mount
+  useEffect(() => {
+    getAllProjects();
+  }, [getAllProjects]);
+
   // Filter projects based on search term
   useEffect(() => {
-    const filtered = projects.filter(project =>
-      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.tech.some(tech => tech.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      project.review.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.review.role.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredProjects(filtered);
+    if (projects && projects.length > 0) {
+      const filtered = projects.filter(project =>
+        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.tech.some(tech => tech.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (project.review && project.review.name && project.review.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (project.review && project.review.role && project.review.role.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+      setFilteredProjects(filtered);
+    } else {
+      setFilteredProjects([]);
+    }
   }, [searchTerm, projects]);
 
   // Initialize edit form when editing starts
   useEffect(() => {
-    if (editingProject) {
-      const project = projects.find(p => p.id === editingProject);
+    if (editingProject && projects) {
+      const project = projects.find(p => p._id === editingProject);
       if (project) {
         setEditForm({
-          name: project.name,
-          description: project.description,
-          tech: [...project.tech],
-          liveLink: project.liveLink,
+          name: project.name || '',
+          description: project.description || '',
+          tech: project.tech ? [...project.tech] : [],
+          liveLink: project.liveLink || '',
           newTech: '',
-          img: project.img,
+          img: project.img || '',
+          category: project.category || 'frontend',
           review: {
-            name: project.review.name,
-            role: project.review.role,
-            text: project.review.text,
-            img: project.review.img
+            name: project.review?.name || '',
+            role: project.review?.role || '',
+            text: project.review?.text || '',
+            img: project.review?.img || ''
           }
         });
       }
@@ -120,6 +94,7 @@ const ManageProjects = () => {
       liveLink: '',
       newTech: '',
       img: '',
+      category: 'frontend',
       review: {
         name: '',
         role: '',
@@ -133,32 +108,39 @@ const ManageProjects = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Create FormData for the update
+      const formData = new FormData();
       
-      setProjects(projects.map(project => 
-        project.id === projectId 
-          ? { 
-              ...project, 
-              name: editForm.name,
-              description: editForm.description,
-              tech: editForm.tech,
-              liveLink: editForm.liveLink,
-              img: editForm.img,
-              review: {
-                ...project.review,
-                name: editForm.review.name,
-                role: editForm.review.role,
-                text: editForm.review.text,
-                img: editForm.review.img
-              }
-            }
-          : project
-      ));
+      // Append project data
+      formData.append('name', editForm.name);
+      formData.append('description', editForm.description);
+      formData.append('tech', JSON.stringify(editForm.tech));
+      formData.append('liveLink', editForm.liveLink);
+      formData.append('category', editForm.category);
+      
+      // Append review data
+      formData.append('review', JSON.stringify({
+        name: editForm.review.name,
+        role: editForm.review.role,
+        text: editForm.review.text
+      }));
+      
+      // Append files if they are File objects (new uploads)
+      if (editForm.img instanceof File) {
+        formData.append('projectImage', editForm.img);
+      }
+      
+      if (editForm.review.img instanceof File) {
+        formData.append('reviewImage', editForm.review.img);
+      }
+      
+      // Call the editProject function from store
+      await editProject(projectId, formData);
       
       handleCloseEdit();
     } catch (error) {
       console.error('Error updating project:', error);
+      alert('Failed to update project. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -168,13 +150,11 @@ const ManageProjects = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setProjects(projects.filter(project => project.id !== projectId));
+      await deleteProject(projectId);
       setDeleteConfirm(null);
     } catch (error) {
       console.error('Error deleting project:', error);
+      alert('Failed to delete project. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -214,39 +194,18 @@ const ManageProjects = () => {
     });
   };
 
-  // Simulate image upload
-  const handleImageUpload = async (field, file) => {
-    setUploadingImage(true);
-    
-    try {
-      // Simulate upload process
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // In a real app, you would upload to a service like Cloudinary, AWS S3, etc.
-      // For demo, we'll create a blob URL
-      const imageUrl = URL.createObjectURL(file);
-      
-      if (field === 'project') {
-        setEditForm({ ...editForm, img: imageUrl });
-      } else {
-        setEditForm({
-          ...editForm,
-          review: { ...editForm.review, img: imageUrl }
-        });
-      }
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      alert('Error uploading image. Please try again.');
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
   const handleFileChange = (field, event) => {
     const file = event.target.files[0];
     if (file) {
       if (file.type.startsWith('image/')) {
-        handleImageUpload(field, file);
+        if (field === 'project') {
+          setEditForm({ ...editForm, img: file });
+        } else {
+          setEditForm({
+            ...editForm,
+            review: { ...editForm.review, img: file }
+          });
+        }
       } else {
         alert('Please select a valid image file.');
       }
@@ -255,6 +214,14 @@ const ManageProjects = () => {
 
   const clearSearch = () => {
     setSearchTerm('');
+  };
+
+  // Get image URL for display (handles both File objects and string URLs)
+  const getImageUrl = (image) => {
+    if (image instanceof File) {
+      return URL.createObjectURL(image);
+    }
+    return image;
   };
 
   return (
@@ -268,6 +235,13 @@ const ManageProjects = () => {
             View, edit, and delete your projects
           </p>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-900 border border-red-700 rounded-lg text-red-200">
+            <strong>Error:</strong> {error}
+          </div>
+        )}
 
         {/* Search Bar */}
         <div className="mb-8 max-w-2xl mx-auto">
@@ -296,7 +270,7 @@ const ManageProjects = () => {
           </div>
           <div className="mt-2 flex justify-between items-center text-sm text-zinc-400">
             <span>
-              {filteredProjects.length} of {projects.length} projects found
+              {filteredProjects.length} of {projects?.length || 0} projects found
             </span>
             {searchTerm && (
               <span>
@@ -306,10 +280,18 @@ const ManageProjects = () => {
           </div>
         </div>
 
+        {/* Loading State */}
+        {(storeLoading || isLoading) && !editingProject && !deleteConfirm && (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="text-zinc-400 mt-4">Loading projects...</p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
           {filteredProjects.map((project) => (
             <div
-              key={project.id}
+              key={project._id}
               className="bg-zinc-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 border border-zinc-700"
             >
               {/* Project Image */}
@@ -328,7 +310,7 @@ const ManageProjects = () => {
                     <Eye className="w-4 h-4 text-zinc-300" />
                   </button>
                   <button
-                    onClick={() => handleEdit(project.id)}
+                    onClick={() => handleEdit(project._id)}
                     disabled={isLoading}
                     className="p-2 bg-zinc-800 rounded-full shadow-md hover:bg-zinc-700 transition-colors disabled:opacity-50 border border-zinc-600"
                     title="Edit Project"
@@ -336,7 +318,7 @@ const ManageProjects = () => {
                     <Edit className="w-4 h-4 text-green-400" />
                   </button>
                   <button
-                    onClick={() => setDeleteConfirm(project.id)}
+                    onClick={() => setDeleteConfirm(project._id)}
                     disabled={isLoading}
                     className="p-2 bg-zinc-800 rounded-full shadow-md hover:bg-zinc-700 transition-colors disabled:opacity-50 border border-zinc-600"
                     title="Delete Project"
@@ -361,7 +343,7 @@ const ManageProjects = () => {
                     Technologies Used:
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {project.tech.map((tech, index) => (
+                    {project.tech && project.tech.map((tech, index) => (
                       <span
                         key={index}
                         className="px-3 py-1 bg-zinc-700 text-zinc-200 text-xs font-medium rounded-full border border-zinc-600"
@@ -373,33 +355,37 @@ const ManageProjects = () => {
                 </div>
 
                 {/* Client Review */}
-                <div className="border-t border-zinc-700 pt-4 mt-4">
-                  <div className="flex items-start space-x-3">
-                    <img
-                      src={project.review.img}
-                      alt={project.review.name}
-                      className="w-10 h-10 rounded-full object-cover border border-zinc-600"
-                    />
-                    <div className="flex-1">
-                      <h5 className="font-medium text-white text-sm">
-                        {project.review.name}
-                      </h5>
-                      <p className="text-xs text-zinc-400 mb-1">
-                        {project.review.role}
-                      </p>
-                      <p className="text-sm text-zinc-300 italic line-clamp-2">
-                        "{project.review.text}"
-                      </p>
+                {project.review && (
+                  <div className="border-t border-zinc-700 pt-4 mt-4">
+                    <div className="flex items-start space-x-3">
+                      {project.review.img && (
+                        <img
+                          src={project.review.img}
+                          alt={project.review.name}
+                          className="w-10 h-10 rounded-full object-cover border border-zinc-600"
+                        />
+                      )}
+                      <div className="flex-1">
+                        <h5 className="font-medium text-white text-sm">
+                          {project.review.name}
+                        </h5>
+                        <p className="text-xs text-zinc-400 mb-1">
+                          {project.review.role}
+                        </p>
+                        <p className="text-sm text-zinc-300 italic line-clamp-2">
+                          "{project.review.text}"
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           ))}
         </div>
 
         {/* No Results Message */}
-        {filteredProjects.length === 0 && projects.length > 0 && (
+        {filteredProjects.length === 0 && projects && projects.length > 0 && (
           <div className="text-center py-12">
             <div className="bg-zinc-800 rounded-lg p-8 max-w-md mx-auto border border-zinc-700">
               <Search className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
@@ -420,15 +406,15 @@ const ManageProjects = () => {
         )}
 
         {/* No Projects Message */}
-        {projects.length === 0 && (
+        {projects && projects.length === 0 && !storeLoading && (
           <div className="text-center py-12">
             <div className="bg-zinc-800 rounded-lg p-8 max-w-md mx-auto border border-zinc-700">
               <p className="text-zinc-400 text-lg mb-4">No projects found.</p>
               <button
                 className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
                 onClick={() => {
-                  // Add functionality to create new project
-                  alert('Add new project functionality would go here');
+                  // Redirect to add project page or show add project modal
+                  window.location.href = '/add-project'; // Adjust this path as needed
                 }}
               >
                 Add Your First Project
@@ -465,7 +451,7 @@ const ManageProjects = () => {
                         <div className="w-32 h-32 bg-zinc-700 rounded-lg border-2 border-dashed border-zinc-600 overflow-hidden">
                           {editForm.img ? (
                             <img
-                              src={editForm.img}
+                              src={getImageUrl(editForm.img)}
                               alt="Project preview"
                               className="w-full h-full object-cover"
                             />
@@ -493,7 +479,7 @@ const ManageProjects = () => {
                               <div className="flex items-center justify-center px-4 py-3 bg-zinc-700 border border-zinc-600 rounded-md hover:bg-zinc-600 transition-colors cursor-pointer">
                                 <Upload className="w-4 h-4 mr-2 text-zinc-300" />
                                 <span className="text-zinc-300 text-sm">
-                                  {uploadingImage ? 'Uploading...' : 'Choose File'}
+                                  Choose File
                                 </span>
                               </div>
                             </label>
@@ -506,7 +492,7 @@ const ManageProjects = () => {
                           </label>
                           <input
                             type="url"
-                            value={editForm.img}
+                            value={typeof editForm.img === 'string' ? editForm.img : ''}
                             onChange={(e) => setEditForm({ ...editForm, img: e.target.value })}
                             className="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-zinc-400 text-sm"
                             placeholder="https://example.com/image.jpg"
@@ -555,6 +541,24 @@ const ManageProjects = () => {
                       className="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-zinc-400"
                       placeholder="Enter project description"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-300 mb-1">
+                      Category
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input 
+                        type="checkbox" 
+                        id="category-check"
+                        checked={editForm.category === "fullstack"} 
+                        onChange={(e) => setEditForm({ ...editForm, category: e.target.checked ? "fullstack" : "frontend" })} 
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <label htmlFor="category-check" className="text-sm font-medium text-zinc-300">
+                        Check if Fullstack project (unchecked for Frontend)
+                      </label>
+                    </div>
                   </div>
 
                   <div>
@@ -638,7 +642,7 @@ const ManageProjects = () => {
                               <div className="w-16 h-16 bg-zinc-700 rounded-full border-2 border-dashed border-zinc-600 overflow-hidden">
                                 {editForm.review.img ? (
                                   <img
-                                    src={editForm.review.img}
+                                    src={getImageUrl(editForm.review.img)}
                                     alt="Client preview"
                                     className="w-full h-full object-cover"
                                   />
@@ -660,13 +664,13 @@ const ManageProjects = () => {
                                 <div className="flex items-center justify-center px-4 py-2 bg-zinc-700 border border-zinc-600 rounded-md hover:bg-zinc-600 transition-colors cursor-pointer">
                                   <Upload className="w-4 h-4 mr-2 text-zinc-300" />
                                   <span className="text-zinc-300 text-sm">
-                                    {uploadingImage ? 'Uploading...' : 'Upload Photo'}
+                                    Upload Photo
                                   </span>
                                 </div>
                               </label>
                               <input
                                 type="url"
-                                value={editForm.review.img}
+                                value={typeof editForm.review.img === 'string' ? editForm.review.img : ''}
                                 onChange={(e) => handleReviewChange('img', e.target.value)}
                                 className="w-full mt-2 px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-zinc-400 text-sm"
                                 placeholder="Or enter image URL"
@@ -694,7 +698,7 @@ const ManageProjects = () => {
                   <div className="flex gap-3 pt-6 border-t border-zinc-700">
                     <button
                       onClick={() => handleSave(editingProject)}
-                      disabled={isLoading || uploadingImage}
+                      disabled={isLoading}
                       className="flex-1 flex items-center justify-center cursor-pointer px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors"
                     >
                       <Save className="w-5 h-5 mr-2" />

@@ -24,16 +24,29 @@ const createTeamMember = asyncHandler(async (req, res, next) => {
     }
     let imgMongo = img;
     if (req.file) {
-        const {buffer, mimetype} = req.file;
+        const { buffer, mimetype } = req.file;
         const base64Image = bufferToBase64(buffer, mimetype);
         const uploadResult = await uploadOnCloudinary(base64Image, "image");
         imgMongo = uploadResult.secure_url;
     }
+    console.log("Links data:", links);
 
-    const linkDoc = links ? await Link.create(links) : null;
+    const linkDoc = links ? await Link.create({
+        links: {
+            linkedin: links.linkedin || "",
+            github: links.github || "",
+            portfolio: links.portfolio || "",
+        },
+        socials: {
+            facebook: links.facebook || "",
+            instagram: links.instagram || "",
+            x: links.x || "",
+            discord: links.discord || "",
+        },
+    }) : null;
 
     const teamMember = await Team.create({
-        name : name,
+        name: name,
         role,
         description,
         skills,
@@ -58,6 +71,12 @@ const getAllTeamMembers = asyncHandler(async (req, res, next) => {
                 foreignField: "_id",
                 as: "linkDetails"
             }
+        },
+        {
+            $unwind: {
+                path: "$linkDetails",
+                preserveNullAndEmptyArrays: true
+            }
         }
     ])
     if (!teamMembers) {
@@ -69,7 +88,7 @@ const getAllTeamMembers = asyncHandler(async (req, res, next) => {
 
 const getTeamMemberById = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
-    if(!mongoose.Types.ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new ApiError(400, "Invalid team member ID");
     }
 
@@ -110,7 +129,7 @@ const editTeamMember = asyncHandler(async (req, res, next) => {
             const publicId = getPublicId(teamMember.img);
             await deleteFromCloudinary(publicId, "image");
         }
-        const {buffer, mimetype} = req.file;
+        const { buffer, mimetype } = req.file;
         const base64Image = bufferToBase64(buffer, mimetype);
         const uploadResult = await uploadOnCloudinary(base64Image, "image");
         imgMongo = uploadResult.secure_url;

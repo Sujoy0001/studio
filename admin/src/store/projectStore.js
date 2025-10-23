@@ -106,14 +106,14 @@ const projectStore = create((set) => ({
             set({ isLoading: false });
         }
     },
-    totalProject : 0,
     getTotalProjects: async () => {
         set({ isLoading: true, error: null, message: null });
         try {
             const response = await axios.get(`${import.meta.env.VITE_SERVER_PORT}/project/totalProjects`, { withCredentials: true });
             if (response.status === 200) {
-                set({ totalProject: response.data.data });
-                console.log("Total projects fetched successfully", response.data.data);
+                // Extract the number from the response data
+                set({ totalProject: response.data.data.totalProjects });
+                console.log("Total projects fetched successfully", response.data.data.totalProjects);
             } else {
                 set({ message: response.data.message });
             }
@@ -125,14 +125,14 @@ const projectStore = create((set) => ({
             set({ isLoading: false });
         }
     },
-    lastProjectDate : null,
     getLastProject: async () => {
         set({ isLoading: true, error: null, message: null });
         try {
             const response = await axios.get(`${import.meta.env.VITE_SERVER_PORT}/project/lastProject`, { withCredentials: true });
             if (response.status === 200) {
-                set({ lastProjectDate: response.data.data });
-                console.log("Last project fetched successfully", response.data.data);
+                // Extract the date from the response data
+                set({ lastProjectDate: response.data.data.lastData });
+                console.log("Last project fetched successfully", response.data.data.lastData);
             } else {
                 set({ message: response.data.message });
             }

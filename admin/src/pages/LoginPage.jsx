@@ -1,21 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, LogIn, Shield, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
-
-const validCredentials = [
-  { email: 'admin@revoxstudio.com', password: 'Admin@123' },
-  { email: 'sujogarai89@gmail.com', password: 'Sujoy@2025' },
-  { email: 'manager@revoxstudio.com', password: 'Manager@456' }
-];
+import userStore from "../store/userStore.js"
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+  const { loginuser, isLoading: storeLoading, error: storeError, message: storeMessage } = userStore();
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [localError, setLocalError] = useState('');
+  const [localSuccess, setLocalSuccess] = useState('');
   const [attempts, setAttempts] = useState(0);
   const [isLocked, setIsLocked] = useState(false);
   const [lockTime, setLockTime] = useState(0);
@@ -44,40 +39,44 @@ export default function LoginPage() {
       [field]: value
     }));
     // Clear errors when user starts typing
-    if (error) setError('');
+    if (localError) setLocalError('');
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     
     if (isLocked) {
-      setError(`Account temporarily locked. Please try again in ${lockTime} seconds.`);
+      setLocalError(`Account temporarily locked. Please try again in ${lockTime} seconds.`);
       return;
     }
 
     if (!formData.email || !formData.password) {
-      setError('Please enter both email and password.');
+      setLocalError('Please enter both email and password.');
       return;
     }
 
-    setIsLoading(true);
-    setError('');
-    setSuccess('');
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setLocalError('Please enter a valid email address.');
+      return;
+    }
 
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    setLocalError('');
+    setLocalSuccess('');
 
     try {
-      const isValid = validCredentials.some(
-        cred => cred.email === formData.email && cred.password === formData.password
-      );
+      // Use the loginuser function from the store
+      await loginuser({
+        email: formData.email,
+        password: formData.password
+      });
 
-      if (isValid) {
-        setSuccess('Login successful! Redirecting...');
-        
-        // Save login state to localStorage
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('loginTime', Date.now().toString());
+      // Check if login was successful by looking at store state
+      const { isAuthenticated, error } = userStore.getState();
+      
+      if (isAuthenticated) {
+        setLocalSuccess('Login successful! Redirecting...');
         
         // Reset attempts on successful login
         setAttempts(0);
@@ -85,7 +84,7 @@ export default function LoginPage() {
         // Redirect to "/" after a short delay
         setTimeout(() => {
           window.location.href = '/';
-        }, 1000); // 1-second delay to show success message
+        }, 1000);
 
       } else {
         const newAttempts = attempts + 1;
@@ -94,17 +93,38 @@ export default function LoginPage() {
         if (newAttempts >= 3) {
           setIsLocked(true);
           setLockTime(300); // 5 minutes lock
-          setError('Too many failed attempts. Account locked for 5 minutes.');
+          setLocalError('Too many failed attempts. Account locked for 5 minutes.');
         } else {
-          setError(`Invalid email or password. ${3 - newAttempts} attempts remaining.`);
+          setLocalError(error || `Invalid email or password. ${3 - newAttempts} attempts remaining.`);
         }
       }
     } catch (err) {
-      setError('An error occurred during login. Please try again.');
-    } finally {
-      setIsLoading(false);
+      const newAttempts = attempts + 1;
+      setAttempts(newAttempts);
+      
+      if (newAttempts >= 3) {
+        setIsLocked(true);
+        setLockTime(300);
+        setLocalError('Too many failed attempts. Account locked for 5 minutes.');
+      } else {
+        setLocalError(err.message || 'An error occurred during login. Please try again.');
+      }
     }
   };
+
+  // Effect to handle store errors
+  useEffect(() => {
+    if (storeError) {
+      setLocalError(storeError);
+    }
+  }, [storeError]);
+
+  // Effect to handle store messages
+  useEffect(() => {
+    if (storeMessage && storeMessage.includes('success')) {
+      setLocalSuccess(storeMessage);
+    }
+  }, [storeMessage]);
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -142,7 +162,7 @@ export default function LoginPage() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
-                  disabled={isLocked || isLoading}
+                  disabled={isLocked || storeLoading}
                   className="w-full pl-11 pr-4 py-3 bg-zinc-700 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 transition-colors"
                   placeholder="Enter your email"
                 />
@@ -160,14 +180,14 @@ export default function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
-                  disabled={isLocked || isLoading}
+                  disabled={isLocked || storeLoading}
                   className="w-full pl-11 pr-12 py-3 bg-zinc-700 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 transition-colors"
                   placeholder="Enter your password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  disabled={isLocked || isLoading}
+                  disabled={isLocked || storeLoading}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-400 hover:text-zinc-300 disabled:opacity-50 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -176,18 +196,18 @@ export default function LoginPage() {
             </div>
 
             {/* Error Message */}
-            {error && (
+            {(localError || storeError) && (
               <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
                 <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                <p className="text-red-400 text-sm">{error}</p>
+                <p className="text-red-400 text-sm">{localError || storeError}</p>
               </div>
             )}
 
             {/* Success Message */}
-            {success && (
+            {(localSuccess || storeMessage) && (
               <div className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
                 <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
-                <p className="text-green-400 text-sm">{success}</p>
+                <p className="text-green-400 text-sm">{localSuccess || storeMessage}</p>
               </div>
             )}
 
@@ -204,10 +224,10 @@ export default function LoginPage() {
             {/* Login Button */}
             <button
               type="submit"
-              disabled={isLoading || isLocked || !formData.email || !formData.password}
+              disabled={storeLoading || isLocked || !formData.email || !formData.password}
               className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-zinc-800"
             >
-              {isLoading ? (
+              {storeLoading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Signing in...
@@ -219,8 +239,6 @@ export default function LoginPage() {
                 </>
               )}
             </button>
-
-            
           </div>
         </form>
       </div>
