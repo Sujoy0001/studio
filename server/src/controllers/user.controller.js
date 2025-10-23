@@ -11,7 +11,12 @@ const loginUser = asyncHandler(async (req, res, next) => {
     if (!email || !password) {
         throw new ApiError(400, "Email and password are required");
     }
-    if(email !== process.env.EMAIL || password !== process.env.PASSWORD) {
+    const isAllowed =
+        (email === process.env.EMAIL && password === process.env.PASSWORD) ||
+        (email === process.env.REVOX_EMAIL && password === process.env.REVOX_PASSWORD) ||
+        (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD);
+
+    if (!isAllowed) {
         throw new ApiError(401, "Invalid credentials");
     }
     let user = await User.findOne({ email });
@@ -26,7 +31,7 @@ const loginUser = asyncHandler(async (req, res, next) => {
             email,
             password: hashedPassword
         })
-        if(!user) {
+        if (!user) {
             throw new ApiError(500, "User creation failed");
         }
     }
@@ -59,16 +64,18 @@ const loginUser = asyncHandler(async (req, res, next) => {
         .status(200)
         .cookie("refreshToken", refreshToken, options)
         .cookie("accessToken", accessToken, options)
-        .json(new ApiResponse(200, { accessToken, refreshToken, user : {
-            _id : user._id,
-            email : user.email,
-        } }, "Login successful"));
+        .json(new ApiResponse(200, {
+            accessToken, refreshToken, user: {
+                _id: user._id,
+                email: user.email,
+            }
+        }, "Login successful"));
 })
 
 const currentUser = asyncHandler(async (req, res, next) => {
     const userId = req.user._id;
     const user = await User.findById(userId).select("-password -refreshToken");
-    if(!user) {
+    if (!user) {
         throw new ApiError(404, "User not found");
     }
     return res
@@ -79,7 +86,7 @@ const currentUser = asyncHandler(async (req, res, next) => {
 const logoutUser = asyncHandler(async (req, res, next) => {
     const userId = req.user._id;
     const user = await User.findById(userId);
-    if(!user) {
+    if (!user) {
         throw new ApiError(404, "User not found");
     }
     user.refreshToken = null;
