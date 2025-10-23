@@ -134,14 +134,38 @@ const editTeamMember = asyncHandler(async (req, res, next) => {
         const uploadResult = await uploadOnCloudinary(base64Image, "image");
         imgMongo = uploadResult.secure_url;
     }
-
+    console.log("Links data for update:", links);
     const linkId = teamMember.links;
     let newLinkDoc = null;
     if (links) {
         if (linkId) {
-            await Link.findByIdAndUpdate(linkId, links, { new: true });
+            await Link.findByIdAndUpdate(linkId, {
+                links: {
+                    linkedin: links.linkedin,
+                    github: links.github,
+                    portfolio: links.portfolio,
+                },
+                socials: {
+                    facebook: links.facebook,
+                    instagram: links.instagram,
+                    x: links.x,
+                    discord: links.discord,
+                },
+            }, { new: true });
         } else {
-            newLinkDoc = await Link.create(links);
+            newLinkDoc = await Link.create({
+                links: {
+                    linkedin: links.linkedin || "",
+                    github: links.github || "",
+                    portfolio: links.portfolio || "",
+                },
+                socials: {
+                    facebook: links.facebook || "",
+                    instagram: links.instagram || "",
+                    x: links.x || "",
+                    discord: links.discord || "",
+                },
+            });
             if (!newLinkDoc) {
                 throw new ApiError(500, "Link creation failed");
             }

@@ -120,6 +120,8 @@ const ManageMembers = () => {
         img: editForm.img,
         urlName: editForm.urlName
       };
+
+      console.log("Saving team member data:", apiData);
       
       await editTeamMember(memberId, apiData);
       handleCloseEdit();
