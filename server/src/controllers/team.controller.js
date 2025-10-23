@@ -67,6 +67,31 @@ const getAllTeamMembers = asyncHandler(async (req, res, next) => {
     return res.status(200).json(new ApiResponse(200, teamMembers, "Team members fetched successfully"));
 });
 
+const getTeamMemberById = asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    if(!mongoose.Types.ObjectId.isValid(id)) {
+        throw new ApiError(400, "Invalid team member ID");
+    }
+
+    const teamMember = await Team.aggregate([
+        {
+            $match: { _id: new mongoose.Types.ObjectId(id) }
+        },
+        {
+            $lookup: {
+                from: "links",
+                localField: "links",
+                foreignField: "_id",
+                as: "linkDetails"
+            }
+        }
+    ])
+    if (!teamMember || teamMember.length === 0) {
+        throw new ApiError(404, "Team member not found");
+    }
+    return res.status(200).json(new ApiResponse(200, teamMember[0], "Team member fetched successfully"));
+});
+
 const editTeamMember = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const { name, role, description, skills, email, links, img, urlName } = req.body;
@@ -142,9 +167,18 @@ const deleteTeamMember = asyncHandler(async (req, res, next) => {
     return res.status(204).json(new ApiResponse(204, null, "Team member deleted successfully"));
 });
 
+const totalTeamMembers = asyncHandler(async (req, res, next) => {
+    const count = await Team.countDocuments();
+    return res.status(200).json(
+        new ApiResponse(200, { totalTeamMembers: count }, "Total team members count fetched successfully")
+    );
+});
+
 export {
     createTeamMember,
     getAllTeamMembers,
+    getTeamMemberById,
     editTeamMember,
-    deleteTeamMember
+    deleteTeamMember,
+    totalTeamMembers
 }
