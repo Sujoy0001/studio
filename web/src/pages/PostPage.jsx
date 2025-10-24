@@ -5,32 +5,32 @@ const images = [
   {
     id: 1,
     src: "https://s3-alpha.figma.com/hub/file/4323747573/a14783f4-fe49-4c87-ad29-bb97d9b612e6-cover.png",
-    desc: "A peaceful view of a sunny beach. A peaceful view of a sunny beach. A peaceful view of a sunny beach. A peaceful view of a sunny beach. A peaceful view of a sunny beach.",
+    desc: "",
   },
   {
     id: 2,
-    src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrsrSbLhGEXD-7eW9eor00DnCcNXyMmXLim5h103_uBGJu3204p0UuhccJF0wpYzKhFMI&usqp=CAU",
-    desc: "Snow-covered peaks under a blue sky.",
+    src: "https://s.tmimgcdn.com/scr/1200x627/383000/cuppa-coffee-shop-html5-website-template_383030-original.png",
+    desc: "",
   },
   {
     id: 3,
-    src: "https://picsum.photos/500/350",
-    desc: "Night lights glowing across the skyline.",
+    src: "https://pixel77.com/wp-content/uploads/2024/06/ecommerce-website-designs-1-1024x768.webp",
+    desc: "",
   },
   {
     id: 4,
-    src: "https://picsum.photos/350/500",
-    desc: "A narrow path surrounded by green trees.",
+    src: "https://images-platform.99static.com//ui6uGfGy0G5Sba1teijGcWccRrs=/0x0:1440x1440/fit-in/590x590/99designs-contests-attachments/73/73759/attachment_73759345",
+    desc: "",
   },
   {
     id: 5,
-    src: "https://picsum.photos/450/300",
-    desc: "Golden sand dunes stretching endlessly.",
+    src: "https://cdn.dribbble.com/userupload/14960770/file/original-7dce2b577e15ac3831fdcaf72cfe84c9.png?crop=0x0-1200x900&format=webp&resize=400x300&vertical=center",
+    desc: "",
   },
   {
     id: 6,
-    src: "https://picsum.photos/320/420",
-    desc: "Waves crashing beautifully on the shore.",
+    src: "https://cdn.dribbble.com/userupload/15352139/file/original-3ef59c5742160a03f850541775d1ba69.jpg?resize=752x&vertical=center",
+    desc: "",
   },
 ];
 
