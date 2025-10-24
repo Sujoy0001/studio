@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import userStore from "../store/userStore.js";
 
 const navItems = [
   { name: "Home", path: "/" },
@@ -13,26 +14,52 @@ const navItems = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation(); // to detect active route
-  const navigate = useNavigate(); // Hook for navigation
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { logoutUser, user } = userStore();
 
-  const handleLogout = () => {
-    // Clear login state from localStorage
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('loginTime');
-    
-    // Close mobile menu if open
-    setIsOpen(false);
-    
-    // Redirect to login page (assuming it's at '/login')
-    navigate('/login'); 
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      
+      // Call the logout API from the store
+      await logoutUser();
+      
+      // Clear login state from localStorage
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('loginTime');
+      
+      // Close mobile menu if open
+      setIsOpen(false);
+      
+      // Redirect to login page
+      navigate('/login'); 
+      
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Even if API call fails, clear local storage and redirect
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('loginTime');
+      navigate('/login');
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
     <nav className="bg-zinc-900 shadow-md sticky w-full top-0 left-0 z-50">
       <div className="mx-auto px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="p-0"></div>
+          {/* User info on the left */}
+          <div className="flex items-center space-x-4">
+            {user && (
+              <div className="text-sm text-gray-300 hidden md:block">
+                Welcome, <span className="font-semibold text-orange-400">{user.name || user.email}</span>
+              </div>
+            )}
+          </div>
+          
           <div className="hidden lg:flex items-center space-x-6">
             {navItems.map((item) => (
               <Link
@@ -50,13 +77,27 @@ export default function Navbar() {
             {/* Logout Button for desktop */}
             <button
               onClick={handleLogout}
-              className="px-3 py-2 sujoy3 cursor-pointer bg-red-600/50 rounded-md text-sm font-semibold text-gray-300 hover:bg-red-700 hover:text-white transition-colors"
+              disabled={isLoggingOut}
+              className="px-3 py-2 sujoy3 cursor-pointer bg-red-600/50 rounded-md text-sm font-semibold text-gray-300 hover:bg-red-700 hover:text-white disabled:bg-red-600/30 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
-              Logout
+              {isLoggingOut ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Logging out...
+                </>
+              ) : (
+                'Logout'
+              )}
             </button>
           </div>
 
-          <div className="lg:hidden flex items-center">
+          <div className="lg:hidden flex items-center space-x-4">
+            {/* Mobile user info */}
+            {user && (
+              <div className="text-sm text-gray-300 md:hidden">
+                <span className="font-semibold text-orange-400">{user.name || user.email?.split('@')[0]}</span>
+              </div>
+            )}
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="text-gray-700 dark:text-gray-300 hover:text-blue-600 focus:outline-none"
@@ -99,7 +140,7 @@ export default function Navbar() {
               className={`block px-3 py-2 rounded-md text-base sujoy3 font-semibold ${
                 location.pathname === item.path
                   ? "bg-zinc-950 text-orange-400"
-                  : "text-gray-300 hover:bg-zinc-800/7Remember the current location is India.70"
+                  : "text-gray-300 hover:bg-zinc-800/70"
               }`}
             >
               {item.name}
@@ -108,12 +149,20 @@ export default function Navbar() {
           {/* Logout Button for mobile */}
           <button
             onClick={handleLogout}
-            className="block w-full cursor-pointer bg-red-600/50 text-left px-3 py-2 rounded-md text-base sujoy3 font-semibold text-gray-300 hover:bg-red-700 hover:text-white transition-colors"
+            disabled={isLoggingOut}
+            className="w-full cursor-pointer bg-red-600/50 text-left px-3 py-2 rounded-md text-base sujoy3 font-semibold text-gray-300 hover:bg-red-700 hover:text-white disabled:bg-red-600/30 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
           >
-            Logout
+            {isLoggingOut ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Logging out...
+              </>
+            ) : (
+              'Logout'
+            )}
           </button>
         </div>
       )}
     </nav>
   );
-};
+}

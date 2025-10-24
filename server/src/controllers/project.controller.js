@@ -458,7 +458,7 @@ const totalProjects = asyncHandler(async (req, res, next) => {
 const lastProject = asyncHandler(async (req, res, next) => {
     const project = await Project.findOne().sort({ createdAt: -1 });
     if (!project) {
-        throw new ApiError(404, "No projects found");
+        return res.status(200).json(new ApiResponse(404, {lastData : null}, "not found any project"));
     }
     return res.status(200).json(new ApiResponse(200, {lastData : project.createdAt}, "Last project fetched successfully"));
 });

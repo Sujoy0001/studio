@@ -1,17 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { 
   FaUsers, 
   FaProjectDiagram, 
   FaPlus, 
   FaEnvelope, 
   FaUserCog,
-  FaCalendarAlt,
   FaTasks
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import projectStore from "../store/projectStore.js";
+import teamStore from "../store/teamStore.js";
 
 // Reusable Stat Card Component
-const StatCard = ({ title, value, icon: Icon, color }) => {
+const StatCard = ({ title, value, icon: Icon, color, loading }) => {
   const colorClasses = {
     blue: 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300',
     green: 'bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-300',
@@ -19,12 +20,33 @@ const StatCard = ({ title, value, icon: Icon, color }) => {
     gray: 'bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300'
   };
 
+  // Safe value rendering
+  const renderValue = () => {
+    if (loading) {
+      return <span className="inline-block h-8 w-16 bg-gray-600 rounded animate-pulse"></span>;
+    }
+    
+    if (value === null || value === undefined) {
+      return "0";
+    }
+    
+    // If value is an object, stringify it for debugging
+    if (typeof value === 'object') {
+      console.error(`Invalid value for ${title}:`, value);
+      return "Error";
+    }
+    
+    return value;
+  };
+
   return (
     <div className="bg-zinc-900 p-6 rounded shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 border border-gray-700">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-medium text-gray-400">{title}</h2>
-          <p className="text-3xl font-bold text-white mt-1">{value}</p>
+          <p className="text-3xl font-bold text-white mt-1">
+            {renderValue()}
+          </p>
         </div>
         <div className={`p-3 rounded-full ${colorClasses[color]}`}>
           <Icon className="text-2xl" />
@@ -61,30 +83,153 @@ const ActionButton = ({ text, icon: Icon, onClick, href, className }) => {
   );
 };
 
-export default function Dashboard({ dashboardData }) {
-  // Default fallback data
-  const stats = dashboardData?.stats || {
-    projects: 4,
-    members: 3,
-    lastUpload: "N/A",
-    activeProjects: 4,
-    pendingTasks: "21/10/2025"
+export default function Dashboard() {
+  const {
+    getTotalProjects, 
+    totalProject, 
+    getLastProject, 
+    lastProjectDate,
+    isLoading: projectLoading,
+    error: projectError
+  } = projectStore();
+  
+  const {
+    getTotalTeamMembers, 
+    totalMember,
+    isLoading: teamLoading,
+    error: teamError
+  } = teamStore();
+
+  // Debug the values
+  useEffect(() => {
+    console.log("Dashboard values:", {
+      totalProject,
+      totalMember,
+      lastProjectDate,
+      totalProjectType: typeof totalProject,
+      totalMemberType: typeof totalMember
+    });
+  }, [totalProject, totalMember, lastProjectDate]);
+
+  // Fetch all data on component mount
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        await Promise.all([
+          getTotalProjects(),
+          getLastProject(),
+          getTotalTeamMembers()
+        ]);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    };
+
+    fetchDashboardData();
+  }, [getTotalProjects, getLastProject, getTotalTeamMembers]);
+
+  // Safe value formatting
+  const formatTotalProjects = () => {
+    if (projectLoading) return null;
+    if (typeof totalProject === 'object') {
+      console.error("totalProject is object:", totalProject);
+      return 0;
+    }
+    return totalProject || 0;
+  };
+
+  const formatTotalMembers = () => {
+    if (teamLoading) return null;
+    if (typeof totalMember === 'object') {
+      console.error("totalMember is object:", totalMember);
+      return 0;
+    }
+    return totalMember || 0;
+  };
+
+  const formatLastDate = () => {
+    if (projectLoading) return null;
+    
+    if (!lastProjectDate) {
+      return "No projects";
+    }
+    
+    // Handle case where lastProjectDate might be an object
+    if (typeof lastProjectDate === 'object') {
+      console.error("lastProjectDate is object:", lastProjectDate);
+      return "Error";
+    }
+    
+    try {
+      return new Date(lastProjectDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Invalid date";
+    }
   };
 
   // Data for stat cards
   const statsList = [
-    { title: "Total Projects", value: stats.projects, icon: FaProjectDiagram, color: "blue" },
-    { title: "Team Members", value: stats.members, icon: FaUsers, color: "green" },
-    { title: "Active Projects", value: stats.activeProjects, icon: FaProjectDiagram, color: "purple" },
-    { title: "Last Update", value: stats.pendingTasks, icon: FaTasks, color: "gray" },
+    { 
+      title: "Total Projects", 
+      value: formatTotalProjects(), 
+      icon: FaProjectDiagram, 
+      color: "blue",
+      loading: projectLoading
+    },
+    { 
+      title: "Team Members", 
+      value: formatTotalMembers(), 
+      icon: FaUsers, 
+      color: "green",
+      loading: teamLoading
+    },
+    { 
+      title: "Active Projects", 
+      value: formatTotalProjects(), 
+      icon: FaProjectDiagram, 
+      color: "purple",
+      loading: projectLoading
+    },
+    { 
+      title: "Last Project", 
+      value: formatLastDate(), 
+      icon: FaTasks, 
+      color: "gray",
+      loading: projectLoading
+    },
   ];
 
-  // Data for action buttons - now with href links
+  // Data for action buttons
   const actionsList = [
-    { text: "Add New Project", icon: FaPlus, href: "add-project", className: "bg-blue-800 hover:bg-blue-600 text-white" },
-    { text: "Add New Member", icon: FaUsers, href: "add-member", className: "bg-green-800 hover:bg-green-600 text-white" },
-    { text: "Message project", icon: FaEnvelope, href: "manage-project", className: "bg-yellow-800 hover:bg-yellow-600 text-white" },
-    { text: "Manage Members", icon: FaUserCog, href: "manage-member", className: "bg-gray-800 hover:bg-gray-600 text-white" }
+    { 
+      text: "Add New Project", 
+      icon: FaPlus, 
+      href: "add-project", 
+      className: "bg-blue-800 hover:bg-blue-600 text-white" 
+    },
+    { 
+      text: "Add New Member", 
+      icon: FaUsers, 
+      href: "add-member", 
+      className: "bg-green-800 hover:bg-green-600 text-white" 
+    },
+    { 
+      text: "Manage Projects", 
+      icon: FaEnvelope, 
+      href: "manage-project", 
+      className: "bg-yellow-800 hover:bg-yellow-600 text-white" 
+    },
+    { 
+      text: "Manage Members", 
+      icon: FaUserCog, 
+      href: "manage-member", 
+      className: "bg-gray-800 hover:bg-gray-600 text-white" 
+    }
   ];
 
   return (
@@ -100,10 +245,30 @@ export default function Dashboard({ dashboardData }) {
           </p>
         </header>
 
+        {/* Error Messages */}
+        {projectError && (
+          <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+            <p className="text-red-400 text-sm">Project Error: {projectError}</p>
+          </div>
+        )}
+        
+        {teamError && (
+          <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+            <p className="text-red-400 text-sm">Team Error: {teamError}</p>
+          </div>
+        )}
+
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {statsList.map((stat, index) => (
-            <StatCard key={index} {...stat} />
+            <StatCard 
+              key={index} 
+              title={stat.title}
+              value={stat.value}
+              icon={stat.icon}
+              color={stat.color}
+              loading={stat.loading}
+            />
           ))}
         </div>
 

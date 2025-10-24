@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, FileText, Send, ImagePlus, AlertCircle, CheckCircle } from 'lucide-react';
+import postStore from "../store/postStore.js"
 
 export default function AddPostPage() {
   const [imageFile, setImageFile] = useState(null);
@@ -8,6 +9,7 @@ export default function AddPostPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const { createPost, isLoading: storeLoading } = postStore()
 
   // Clean up the object URL to prevent memory leaks
   useEffect(() => {
@@ -43,13 +45,14 @@ export default function AddPostPage() {
     setError('');
     setSuccess('');
 
-    // Simulate an API call (e.g., uploading to Firebase Storage)
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
     try {
-      // In a real app, you would upload the file and save the description
-      console.log('Uploading file:', imageFile.name);
-      console.log('With description:', description);
+      // Create FormData object to send file and description
+      const formData = new FormData();
+      formData.append('image', imageFile); // This matches the multer field name 'image'
+      formData.append('discription', description); // Note: matches your backend field name 'discription'
+
+      // Call the createPost function from postStore
+      await createPost(formData);
 
       setSuccess('Post uploaded successfully!');
       
@@ -59,11 +62,14 @@ export default function AddPostPage() {
       setDescription('');
 
     } catch (err) {
-      setError('An error occurred during upload. Please try again.');
+      setError(err.message || 'An error occurred during upload. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Combine both loading states
+  const isSubmitting = isLoading || storeLoading;
 
   return (
     <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -94,7 +100,7 @@ export default function AddPostPage() {
                 htmlFor="file-upload"
                 className={`flex justify-center items-center w-full h-64 border-2 border-zinc-600 border-dashed rounded-lg cursor-pointer ${
                   imagePreview ? 'p-0' : 'p-6'
-                } bg-zinc-700/50 hover:bg-zinc-700/70 transition-colors`}
+                } bg-zinc-700/50 hover:bg-zinc-700/70 transition-colors ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {imagePreview ? (
                   <img
@@ -121,7 +127,7 @@ export default function AddPostPage() {
                 className="sr-only"
                 accept="image/*"
                 onChange={handleImageChange}
-                disabled={isLoading}
+                disabled={isSubmitting}
               />
             </div>
 
@@ -134,10 +140,11 @@ export default function AddPostPage() {
                 <FileText className="absolute left-3 top-3.5 w-5 h-5 text-zinc-400" />
                 <textarea
                   id="description"
+                  name="description"
                   rows="4"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                   className="w-full pl-11 pr-4 py-3 bg-zinc-700 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50 transition-colors"
                   placeholder="Write a caption..."
                 />
@@ -163,10 +170,10 @@ export default function AddPostPage() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading || !imageFile}
+              disabled={isSubmitting || !imageFile}
               className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-green-600 hover:bg-green-700 disabled:bg-green-600/50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-zinc-800"
             >
-              {isLoading ? (
+              {isSubmitting ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Uploading...
