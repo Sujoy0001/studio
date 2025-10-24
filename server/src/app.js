@@ -7,7 +7,6 @@ const app = express()
 app.use(cors({
     origin: function (origin, callback) {
         const allowedOrigins = [
-            "http://localhost:5173",
             ...(process.env.FIRST_ORIGIN ? [process.env.FIRST_ORIGIN] : []),
             ...(process.env.SECOND_ORIGIN ? [process.env.SECOND_ORIGIN] : [])
         ];
