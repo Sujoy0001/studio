@@ -1,59 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Edit, Trash2, Eye, X, Save, Search, Mail, ExternalLink } from 'lucide-react';
-
-// Sample data
-const initialMembers = [
-  {
-    id: 1,
-    name: "Sujoy Garai",
-    role: "Full Stack Developer | Founder of Revox Studio",
-    description: "I am a full-stack developer and the founder of Revox Studio, passionate about building modern, scalable web apps with React, Django, and FastAPI. I love blending design with logic to create smooth digital experiences — fueled by coffee and creativity. coffee. code. repeat. ☕💻",
-    skills: ["React", "Python", "Django", "Tailwind CSS", "FastAPI", "MongoDB"],
-    email: "sujoygarai89@gmail.com",
-    links: {
-      linkedin: "https://www.linkedin.com/in/sujoygarai/",
-      github: "https://github.com/Sujoy0001",
-      portfolio: "https://revoxstudio.site/team/sujoy",
-    },
-    socials: {
-      facebook: "",
-      instagram: "https://www.instagram.com/_sujoygarai_?igsh=Nmx0YjVwZXV6M3Bv",
-      x: "https://x.com/SujoyGarai999",
-      discord: "",
-    },
-    img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-    urlName: "sujoy",
-  },
-  {
-    id: 2,
-    name: "John Doe",
-    role: "Frontend Developer",
-    description: "Passionate frontend developer with expertise in React and modern JavaScript frameworks. Love creating beautiful and functional user interfaces.",
-    skills: ["React", "JavaScript", "TypeScript", "CSS3", "Next.js"],
-    email: "john.doe@example.com",
-    links: {
-      linkedin: "https://linkedin.com/in/johndoe",
-      github: "https://github.com/johndoe",
-      portfolio: "https://johndoe.dev",
-    },
-    socials: {
-      facebook: "https://facebook.com/johndoe",
-      instagram: "https://instagram.com/johndoe",
-      x: "https://x.com/johndoe",
-      discord: "johndoe#1234",
-    },
-    img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
-    urlName: "john-doe",
-  }
-];
+import teamStore from '../store/teamStore.js';
 
 const ManageMembers = () => {
-  const [members, setMembers] = useState(initialMembers);
-  const [filteredMembers, setFilteredMembers] = useState(initialMembers);
+  const { 
+    members, 
+    isLoading, 
+    getAllTeamMembers, 
+    deleteTeamMember, 
+    editTeamMember 
+  } = teamStore();
+  
+  const [filteredMembers, setFilteredMembers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingMember, setEditingMember] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
 
   // Form state for editing
   const [editForm, setEditForm] = useState({
@@ -66,44 +28,61 @@ const ManageMembers = () => {
       linkedin: '',
       github: '',
       portfolio: '',
-    },
-    socials: {
       facebook: '',
       instagram: '',
       x: '',
-      discord: '',
+      discord: ''
     },
     img: '',
     urlName: '',
     newSkill: ''
   });
 
+  // Load all team members on component mount
+  useEffect(() => {
+    getAllTeamMembers();
+  }, []);
+
   // Filter members based on search term
   useEffect(() => {
-    const filtered = members.filter(member =>
-      member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      member.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredMembers(filtered);
+    if (members && members.length > 0) {
+      const filtered = members.filter(member =>
+        member.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.role?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.skills?.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        member.email?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredMembers(filtered);
+    } else {
+      setFilteredMembers([]);
+    }
   }, [searchTerm, members]);
 
   // Initialize edit form when editing starts
   useEffect(() => {
-    if (editingMember) {
-      const member = members.find(m => m.id === editingMember);
+    if (editingMember && members && members.length > 0) {
+      const member = members.find(m => m._id === editingMember);
       if (member) {
+        // Extract links from linkDetails array
+        const linkDetails = member.linkDetails && member.linkDetails[0] ? member.linkDetails[0] : {};
+        console.log({member, linkDetails});
         setEditForm({
-          name: member.name,
-          role: member.role,
-          description: member.description,
-          skills: [...member.skills],
-          email: member.email,
-          links: { ...member.links },
-          socials: { ...member.socials },
-          img: member.img,
-          urlName: member.urlName,
+          name: member.name || '',
+          role: member.role || '',
+          description: member.description || '',
+          skills: member.skills || [],
+          email: member.email || '',
+          links: {
+            linkedin: member.linkDetails.links.linkedin || '',
+            github: member.linkDetails.links.github || '',
+            portfolio: member.linkDetails.links.portfolio || '',
+            facebook: member.linkDetails.socials.facebook || '',
+            instagram: member.linkDetails.socials.instagram || '',
+            x: member.linkDetails.socials.x || '',
+            discord: member.linkDetails.socials.discord || ''
+          },
+          img: member.img || '',
+          urlName: member.urlName || '',
           newSkill: ''
         });
       }
@@ -119,50 +98,54 @@ const ManageMembers = () => {
   };
 
   const handleSave = async (memberId) => {
-    setIsLoading(true);
+    setActionLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Prepare data for API - merge all links into single links object
+      const apiData = {
+        name: editForm.name,
+        role: editForm.role,
+        description: editForm.description,
+        skills: editForm.skills,
+        email: editForm.email,
+        links: {
+          linkedin: editForm.links.linkedin,
+          github: editForm.links.github,
+          portfolio: editForm.links.portfolio,
+          facebook: editForm.links.facebook,
+          instagram: editForm.links.instagram,
+          x: editForm.links.x,
+          discord: editForm.links.discord
+        },
+        img: editForm.img,
+        urlName: editForm.urlName
+      };
+
+      console.log("Saving team member data:", apiData);
       
-      setMembers(members.map(member => 
-        member.id === memberId 
-          ? { 
-              ...member, 
-              name: editForm.name,
-              role: editForm.role,
-              description: editForm.description,
-              skills: editForm.skills,
-              email: editForm.email,
-              links: { ...editForm.links },
-              socials: { ...editForm.socials },
-              img: editForm.img,
-              urlName: editForm.urlName
-            }
-          : member
-      ));
-      
+      await editTeamMember(memberId, apiData);
       handleCloseEdit();
+      alert('Member updated successfully!');
     } catch (error) {
       console.error('Error updating member:', error);
+      alert(error.message || 'Error updating member. Please try again.');
     } finally {
-      setIsLoading(false);
+      setActionLoading(false);
     }
   };
 
   const handleDelete = async (memberId) => {
-    setIsLoading(true);
+    setActionLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setMembers(members.filter(member => member.id !== memberId));
+      await deleteTeamMember(memberId);
       setDeleteConfirm(null);
+      alert('Member deleted successfully!');
     } catch (error) {
       console.error('Error deleting member:', error);
+      alert(error.message || 'Error deleting member. Please try again.');
     } finally {
-      setIsLoading(false);
+      setActionLoading(false);
     }
   };
 
@@ -178,16 +161,6 @@ const ManageMembers = () => {
       ...prev,
       links: {
         ...prev.links,
-        [platform]: value
-      }
-    }));
-  };
-
-  const handleSocialChange = (platform, value) => {
-    setEditForm(prev => ({
-      ...prev,
-      socials: {
-        ...prev.socials,
         [platform]: value
       }
     }));
@@ -219,6 +192,14 @@ const ManageMembers = () => {
 
   const clearSearch = () => {
     setSearchTerm('');
+  };
+
+  // Helper function to get member links
+  const getMemberLinks = (member) => {
+    if (member.linkDetails && member.linkDetails[0]) {
+      return member.linkDetails[0];
+    }
+    return {};
   };
 
   return (
@@ -260,7 +241,7 @@ const ManageMembers = () => {
           </div>
           <div className="mt-2 flex justify-between items-center text-sm text-zinc-400">
             <span>
-              {filteredMembers.length} of {members.length} members found
+              {filteredMembers.length} of {members?.length || 0} members found
             </span>
             {searchTerm && (
               <span>
@@ -270,110 +251,124 @@ const ManageMembers = () => {
           </div>
         </div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="text-center py-12">
+            <div className="bg-zinc-800 rounded-lg p-8 max-w-md mx-auto border border-zinc-700">
+              <p className="text-zinc-300 text-lg">Loading team members...</p>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-          {filteredMembers.map((member) => (
-            <div
-              key={member.id}
-              className="bg-zinc-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 border border-zinc-700"
-            >
-              {/* Member Image */}
-              <div className="h-64 bg-zinc-700 relative">
-                <img
-                  src={member.img}
-                  alt={member.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-4 right-4 flex space-x-2">
-                  <button
-                    onClick={() => window.open(member.links.portfolio, '_blank')}
-                    className="p-2 bg-zinc-800 rounded-full shadow-md hover:bg-zinc-700 transition-colors border border-zinc-600"
-                    title="View Portfolio"
-                  >
-                    <ExternalLink className="w-4 h-4 text-zinc-300" />
-                  </button>
-                  <button
-                    onClick={() => handleEdit(member.id)}
-                    disabled={isLoading}
-                    className="p-2 bg-zinc-800 rounded-full shadow-md hover:bg-zinc-700 transition-colors disabled:opacity-50 border border-zinc-600"
-                    title="Edit Member"
-                  >
-                    <Edit className="w-4 h-4 text-green-400" />
-                  </button>
-                  <button
-                    onClick={() => setDeleteConfirm(member.id)}
-                    disabled={isLoading}
-                    className="p-2 bg-zinc-800 rounded-full shadow-md hover:bg-zinc-700 transition-colors disabled:opacity-50 border border-zinc-600"
-                    title="Delete Member"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-400" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Member Content */}
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-white mb-1">
-                  {member.name}
-                </h3>
-                <p className="text-sm text-zinc-400 mb-3">
-                  {member.role}
-                </p>
-                
-                <div className="flex items-center text-zinc-300 mb-4 text-sm">
-                  <Mail className="w-4 h-4 mr-2" />
-                  <span className="truncate">{member.email}</span>
-                </div>
-                
-                <p className="text-zinc-300 mb-4 line-clamp-3 text-sm">
-                  {member.description}
-                </p>
-
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium text-zinc-300 mb-2">
-                    Skills:
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {member.skills.slice(0, 4).map((skill, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 bg-zinc-700 text-zinc-200 text-xs font-medium rounded-full border border-zinc-600"
+          {filteredMembers.map((member) => {
+            const memberLinks = getMemberLinks(member);
+            return (
+              <div
+                key={member._id}
+                className="bg-zinc-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 border border-zinc-700"
+              >
+                {/* Member Image */}
+                <div className="h-64 bg-zinc-700 relative">
+                  <img
+                    src={member.img}
+                    alt={member.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-4 right-4 flex space-x-2">
+                    {memberLinks.portfolio && (
+                      <button
+                        onClick={() => window.open(memberLinks.portfolio, '_blank')}
+                        className="p-2 bg-zinc-800 rounded-full shadow-md hover:bg-zinc-700 transition-colors border border-zinc-600"
+                        title="View Portfolio"
                       >
-                        {skill}
-                      </span>
-                    ))}
-                    {member.skills.length > 4 && (
-                      <span className="px-2 py-1 bg-zinc-600 text-zinc-300 text-xs font-medium rounded-full">
-                        +{member.skills.length - 4} more
-                      </span>
+                        <ExternalLink className="w-4 h-4 text-zinc-300" />
+                      </button>
                     )}
+                    <button
+                      onClick={() => handleEdit(member._id)}
+                      disabled={actionLoading}
+                      className="p-2 bg-zinc-800 rounded-full shadow-md hover:bg-zinc-700 transition-colors disabled:opacity-50 border border-zinc-600"
+                      title="Edit Member"
+                    >
+                      <Edit className="w-4 h-4 text-green-400" />
+                    </button>
+                    <button
+                      onClick={() => setDeleteConfirm(member._id)}
+                      disabled={actionLoading}
+                      className="p-2 bg-zinc-800 rounded-full shadow-md hover:bg-zinc-700 transition-colors disabled:opacity-50 border border-zinc-600"
+                      title="Delete Member"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-400" />
+                    </button>
                   </div>
                 </div>
 
-                {/* Social Links */}
-                <div className="border-t border-zinc-700 pt-4">
-                  <div className="flex justify-between text-xs text-zinc-400">
-                    <span>URL: /team/{member.urlName}</span>
-                    <div className="flex space-x-2">
-                      {member.links.linkedin && (
-                        <a href={member.links.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
-                          LinkedIn
-                        </a>
+                {/* Member Content */}
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold text-white mb-1">
+                    {member.name}
+                  </h3>
+                  <p className="text-sm text-zinc-400 mb-3">
+                    {member.role}
+                  </p>
+                  
+                  <div className="flex items-center text-zinc-300 mb-4 text-sm">
+                    <Mail className="w-4 h-4 mr-2" />
+                    <span className="truncate">{member.email}</span>
+                  </div>
+                  
+                  <p className="text-zinc-300 mb-4 line-clamp-3 text-sm">
+                    {member.description}
+                  </p>
+
+                  <div className="mb-4">
+                    <h4 className="text-sm font-medium text-zinc-300 mb-2">
+                      Skills:
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {member.skills?.slice(0, 4).map((skill, index) => (
+                        <span
+                          key={index}
+                          className="px-2 py-1 bg-zinc-700 text-zinc-200 text-xs font-medium rounded-full border border-zinc-600"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                      {member.skills?.length > 4 && (
+                        <span className="px-2 py-1 bg-zinc-600 text-zinc-300 text-xs font-medium rounded-full">
+                          +{member.skills.length - 4} more
+                        </span>
                       )}
-                      {member.links.github && (
-                        <a href={member.links.github} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
-                          GitHub
-                        </a>
-                      )}
+                    </div>
+                  </div>
+
+                  {/* Social Links */}
+                  <div className="border-t border-zinc-700 pt-4">
+                    <div className="flex justify-between text-xs text-zinc-400">
+                      <span>URL: /team/{member.urlName}</span>
+                      <div className="flex space-x-2">
+                        {memberLinks.linkedin && (
+                          <a href={memberLinks.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                            LinkedIn
+                          </a>
+                        )}
+                        {memberLinks.github && (
+                          <a href={memberLinks.github} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                            GitHub
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* No Results Message */}
-        {filteredMembers.length === 0 && members.length > 0 && (
+        {!isLoading && filteredMembers.length === 0 && members?.length > 0 && (
           <div className="text-center py-12">
             <div className="bg-zinc-800 rounded-lg p-8 max-w-md mx-auto border border-zinc-700">
               <Search className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
@@ -394,7 +389,7 @@ const ManageMembers = () => {
         )}
 
         {/* No Members Message */}
-        {members.length === 0 && (
+        {!isLoading && (!members || members.length === 0) && (
           <div className="text-center py-12">
             <div className="bg-zinc-800 rounded-lg p-8 max-w-md mx-auto border border-zinc-700">
               <p className="text-zinc-400 text-lg mb-4">No team members found.</p>
@@ -555,14 +550,14 @@ const ManageMembers = () => {
                       Professional Links
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {Object.entries(editForm.links).map(([platform, value]) => (
+                      {['linkedin', 'github', 'portfolio'].map((platform) => (
                         <div key={platform}>
                           <label className="block text-sm font-medium text-zinc-300 mb-1 capitalize">
                             {platform}
                           </label>
                           <input
                             type="url"
-                            value={value}
+                            value={editForm.links[platform]}
                             onChange={(e) => handleLinkChange(platform, e.target.value)}
                             className="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-zinc-400"
                           />
@@ -577,15 +572,15 @@ const ManageMembers = () => {
                       Social Media
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {Object.entries(editForm.socials).map(([platform, value]) => (
+                      {['facebook', 'instagram', 'x', 'discord'].map((platform) => (
                         <div key={platform}>
                           <label className="block text-sm font-medium text-zinc-300 mb-1 capitalize">
                             {platform === 'x' ? 'Twitter/X' : platform}
                           </label>
                           <input
                             type={platform === 'discord' ? 'text' : 'url'}
-                            value={value}
-                            onChange={(e) => handleSocialChange(platform, e.target.value)}
+                            value={editForm.links[platform]}
+                            onChange={(e) => handleLinkChange(platform, e.target.value)}
                             className="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-zinc-400"
                           />
                         </div>
@@ -596,15 +591,15 @@ const ManageMembers = () => {
                   <div className="flex gap-3 pt-6 border-t border-zinc-700">
                     <button
                       onClick={() => handleSave(editingMember)}
-                      disabled={isLoading}
+                      disabled={actionLoading}
                       className="flex-1 flex items-center justify-center px-6 py-3 cursor-pointer bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors"
                     >
                       <Save className="w-5 h-5 mr-2" />
-                      {isLoading ? 'Saving...' : 'Save Changes'}
+                      {actionLoading ? 'Saving...' : 'Save Changes'}
                     </button>
                     <button
                       onClick={handleCloseEdit}
-                      disabled={isLoading}
+                      disabled={actionLoading}
                       className="px-6 py-3 bg-zinc-600 cursor-pointer text-white rounded-md hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-500 disabled:opacity-50 transition-colors"
                     >
                       Cancel
@@ -629,17 +624,17 @@ const ManageMembers = () => {
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => setDeleteConfirm(null)}
-                  disabled={isLoading}
+                  disabled={actionLoading}
                   className="px-4 py-2 text-zinc-300 cursor-pointer hover:text-white disabled:opacity-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleDelete(deleteConfirm)}
-                  disabled={isLoading}
+                  disabled={actionLoading}
                   className="px-4 py-2 bg-red-600 cursor-pointer text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 transition-colors"
                 >
-                  {isLoading ? 'Deleting...' : 'Delete Member'}
+                  {actionLoading ? 'Deleting...' : 'Delete Member'}
                 </button>
               </div>
             </div>

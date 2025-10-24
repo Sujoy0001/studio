@@ -106,14 +106,14 @@ const teamStore = create((set) => ({
             set({ isLoading: false });
         }
     },
-    totalMember : 0,
     getTotalTeamMembers: async () => {
         set({ isLoading: true, error: null, message: null });
         try {
             const response = await axios.get(`${import.meta.env.VITE_SERVER_PORT}/team/totalTeamMembers`, { withCredentials: true });
             if (response.status === 200) {
-                set({ totalMember: response.data.data });
-                console.log("Total team members fetched successfully", response.data.data);
+                // Extract the number from the response data
+                set({ totalMember: response.data.data.totalTeamMembers });
+                console.log("Total team members fetched successfully", response.data.data.totalTeamMembers);
             } else {
                 set({ message: response.data.message });
             }

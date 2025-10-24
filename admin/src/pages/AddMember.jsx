@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Save, Upload, Image as ImageIcon, X, Plus, Link, Mail } from 'lucide-react';
+import teamStore from '../store/teamStore.js';
 
 const AddMember = () => {
+  const { createTeamMember } = teamStore();
   const [formData, setFormData] = useState({
     name: '',
     role: '',
@@ -113,13 +115,26 @@ const AddMember = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Prepare data for API - merge links and socials into single links object
+      const apiData = {
+        name: formData.name,
+        role: formData.role,
+        description: formData.description,
+        skills: formData.skills,
+        email: formData.email,
+        links: {
+          ...formData.links,
+          ...formData.socials
+        },
+        img: formData.img,
+        urlName: formData.urlName
+      };
+      console.log("Submitting team member data:", apiData);
       
-      console.log('Member data to save:', formData);
-      alert('Member added successfully!');
+      // Call the actual API through your store
+      await createTeamMember(apiData);
       
-      // Reset form
+      // Reset form after successful submission
       setFormData({
         name: '',
         role: '',
@@ -140,9 +155,14 @@ const AddMember = () => {
         img: '',
         urlName: '',
       });
+      
+      // Success message is handled by the store
+      alert('Member added successfully!');
+      
     } catch (error) {
       console.error('Error adding member:', error);
-      alert('Error adding member. Please try again.');
+      // Error message is already set in the store, but show alert for user feedback
+      alert(error.message || 'Error adding member. Please try again.');
     } finally {
       setIsLoading(false);
     }

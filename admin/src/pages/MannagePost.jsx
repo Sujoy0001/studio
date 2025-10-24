@@ -1,37 +1,41 @@
-import React, { useState } from 'react';
-import { Edit, Trash2, X, AlertTriangle, Image as ImageIcon, FileText, Check, Save } from 'lucide-react';
-
-// Mock data for posts
-const mockPostsData = [
-  {
-    id: 1,
-    imageUrl: 'https://placehold.co/600x400/5155a8/ffffff?text=Post+Image+1',
-    description: 'This is the description for the first post. It\'s about a beautiful mountain landscape.'
-  },
-  {
-    id: 2,
-    imageUrl: 'https://placehold.co/600x400/a85151/ffffff?text=Post+Image+2',
-    description: 'The second post features a stunning beach sunset.'
-  },
-  {
-    id: 3,
-    imageUrl: 'https://placehold.co/600x400/51a853/ffffff?text=Post+Image+3',
-    description: 'A city skyline at night. The lights are mesmerizing.'
-  }
-];
+import React, { useState, useEffect } from 'react';
+import { Edit, Trash2, X, AlertTriangle, Image as ImageIcon, FileText, Save, Loader } from 'lucide-react';
+import postStore from '../store/postStore.js';
 
 export default function ManagePostsPage() {
-  const [posts, setPosts] = useState(mockPostsData);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentPost, setCurrentPost] = useState(null);
   const [editedDescription, setEditedDescription] = useState('');
+  const [localLoading, setLocalLoading] = useState(false);
+  
+  const { 
+    posts, 
+    isLoading, 
+    error, 
+    message, 
+    getAllPosts, 
+    editPost, 
+    deletePost 
+  } = postStore();
+
+  // Fetch all posts on component mount
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const fetchPosts = async () => {
+    try {
+      await getAllPosts();
+    } catch (err) {
+      console.error('Error fetching posts:', err);
+    }
+  };
 
   // --- Edit Handlers ---
-
   const openEditModal = (post) => {
     setCurrentPost(post);
-    setEditedDescription(post.description);
+    setEditedDescription(post.discription || '');
     setIsEditModalOpen(true);
   };
 
@@ -41,16 +45,25 @@ export default function ManagePostsPage() {
     setEditedDescription('');
   };
 
-  const handleEditSave = (e) => {
+  const handleEditSave = async (e) => {
     e.preventDefault();
-    setPosts(posts.map(post => 
-      post.id === currentPost.id ? { ...post, description: editedDescription } : post
-    ));
-    closeEditModal();
+    
+    if (!currentPost || !editedDescription.trim()) return;
+
+    setLocalLoading(true);
+    try {
+      await editPost(currentPost._id, { discription: editedDescription });
+      closeEditModal();
+      // Refresh posts to get updated data
+      await fetchPosts();
+    } catch (err) {
+      console.error('Error updating post:', err);
+    } finally {
+      setLocalLoading(false);
+    }
   };
 
   // --- Delete Handlers ---
-
   const openDeleteModal = (post) => {
     setCurrentPost(post);
     setIsDeleteModalOpen(true);
@@ -61,10 +74,32 @@ export default function ManagePostsPage() {
     setCurrentPost(null);
   };
 
-  const handleDeleteConfirm = () => {
-    setPosts(posts.filter(post => post.id !== currentPost.id));
-    closeDeleteModal();
+  const handleDeleteConfirm = async () => {
+    if (!currentPost) return;
+
+    setLocalLoading(true);
+    try {
+      await deletePost(currentPost._id);
+      closeDeleteModal();
+      // Posts are automatically updated in the store after deletion
+    } catch (err) {
+      console.error('Error deleting post:', err);
+    } finally {
+      setLocalLoading(false);
+    }
   };
+
+  // Show loading state
+  if (isLoading && posts.length === 0) {
+    return (
+      <div className="min-h-full py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <div className="text-center">
+          <Loader className="w-8 h-8 text-green-500 animate-spin mx-auto mb-4" />
+          <p className="text-zinc-400">Loading posts...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-full py-12 px-4 sm:px-6 lg:px-8">
@@ -79,34 +114,64 @@ export default function ManagePostsPage() {
           </p>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+            <p className="text-red-400 text-sm">{error}</p>
+          </div>
+        )}
+
+        {/* Success Message */}
+        {message && (
+          <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+            <p className="text-green-400 text-sm">{message}</p>
+          </div>
+        )}
+
         {/* Posts List */}
         <div className="space-y-6">
-          {posts.length > 0 ? (
+          {posts && posts.length > 0 ? (
             posts.map(post => (
-              <div key={post.id} className="bg-zinc-800 rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row border border-zinc-700">
+              <div key={post._id} className="bg-zinc-800 rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row border border-zinc-700">
                 <img 
-                  src={post.imageUrl} 
+                  src={post.img} 
                   alt="Post" 
                   className="w-full md:w-1/3 h-48 md:h-auto object-cover"
-                  onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/600x400/ff0000/ffffff?text=Image+Failed'; }}
+                  onError={(e) => { 
+                    e.target.onerror = null; 
+                    e.target.src = 'https://placehold.co/600x400/ff0000/ffffff?text=Image+Failed'; 
+                  }}
                 />
                 <div className="p-6 flex-1 flex flex-col justify-between">
                   <div>
-                    <p className="text-zinc-300">{post.description}</p>
+                    <p className="text-zinc-300">{post.discription || 'No description'}</p>
+                    <p className="text-zinc-500 text-sm mt-2">
+                      Created: {new Date(post.createdAt).toLocaleDateString()}
+                    </p>
                   </div>
                   <div className="flex items-center gap-4 mt-6">
                     <button
                       onClick={() => openEditModal(post)}
-                      className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                      disabled={localLoading}
+                      className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
                     >
-                      <Edit className="w-4 h-4" />
+                      {localLoading ? (
+                        <Loader className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Edit className="w-4 h-4" />
+                      )}
                       Edit
                     </button>
                     <button
                       onClick={() => openDeleteModal(post)}
-                      className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+                      disabled={localLoading}
+                      className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-600/50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      {localLoading ? (
+                        <Loader className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4" />
+                      )}
                       Delete
                     </button>
                   </div>
@@ -130,7 +195,8 @@ export default function ManagePostsPage() {
             <button
               type="button"
               onClick={closeEditModal}
-              className="absolute cursor-pointer top-4 right-4 text-zinc-400 hover:text-white"
+              disabled={localLoading}
+              className="absolute cursor-pointer top-4 right-4 text-zinc-400 hover:text-white disabled:opacity-50"
             >
               <X className="w-6 h-6" />
             </button>
@@ -141,9 +207,13 @@ export default function ManagePostsPage() {
                   Image
                 </label>
                 <img 
-                  src={currentPost.imageUrl} 
+                  src={currentPost.img} 
                   alt="Post preview" 
                   className="w-full h-64 object-cover rounded-lg bg-zinc-700"
+                  onError={(e) => { 
+                    e.target.onerror = null; 
+                    e.target.src = 'https://placehold.co/600x400/ff0000/ffffff?text=Image+Failed'; 
+                  }}
                 />
               </div>
               <div>
@@ -157,7 +227,8 @@ export default function ManagePostsPage() {
                     rows="4"
                     value={editedDescription}
                     onChange={(e) => setEditedDescription(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 bg-zinc-700 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={localLoading}
+                    className="w-full pl-11 pr-4 py-3 bg-zinc-700 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                     placeholder="Write a caption..."
                   />
                 </div>
@@ -166,15 +237,21 @@ export default function ManagePostsPage() {
                 <button
                   type="button"
                   onClick={closeEditModal}
-                  className="px-6 py-2 cursor-pointer bg-zinc-600 hover:bg-zinc-700 text-white font-medium rounded-lg transition-colors"
+                  disabled={localLoading}
+                  className="px-6 py-2 cursor-pointer bg-zinc-600 hover:bg-zinc-700 disabled:bg-zinc-600/50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex cursor-pointer items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                  disabled={localLoading || !editedDescription.trim()}
+                  className="flex cursor-pointer items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
                 >
-                  <Save className="w-4 h-4" />
+                  {localLoading ? (
+                    <Loader className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Save className="w-4 h-4" />
+                  )}
                   Save Changes
                 </button>
               </div>
@@ -198,15 +275,21 @@ export default function ManagePostsPage() {
               <div className="flex justify-center gap-4">
                 <button
                   onClick={closeDeleteModal}
-                  className="px-6 py-2 cursor-pointer bg-zinc-600 hover:bg-zinc-700 text-white font-medium rounded-lg transition-colors"
+                  disabled={localLoading}
+                  className="px-6 py-2 cursor-pointer bg-zinc-600 hover:bg-zinc-700 disabled:bg-zinc-600/50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDeleteConfirm}
-                  className="flex cursor-pointer items-center gap-2 px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+                  disabled={localLoading}
+                  className="flex cursor-pointer items-center gap-2 px-6 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-600/50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  {localLoading ? (
+                    <Loader className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
                   Delete
                 </button>
               </div>
