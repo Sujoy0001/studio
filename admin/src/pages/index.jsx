@@ -10,6 +10,7 @@ import {
 import { Link } from "react-router-dom";
 import projectStore from "../store/projectStore.js";
 import teamStore from "../store/teamStore.js";
+import postStore from "../store/postStore.js"
 
 // Reusable Stat Card Component
 const StatCard = ({ title, value, icon: Icon, color, loading }) => {
@@ -100,6 +101,11 @@ export default function Dashboard() {
     error: teamError
   } = teamStore();
 
+  const {
+    fetchTotalPosts,
+    totalPosts
+  } = postStore();
+
   // Debug the values
   useEffect(() => {
     console.log("Dashboard values:", {
@@ -118,7 +124,8 @@ export default function Dashboard() {
         await Promise.all([
           getTotalProjects(),
           getLastProject(),
-          getTotalTeamMembers()
+          getTotalTeamMembers(),
+          fetchTotalPosts()
         ]);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
@@ -126,7 +133,7 @@ export default function Dashboard() {
     };
 
     fetchDashboardData();
-  }, [getTotalProjects, getLastProject, getTotalTeamMembers]);
+  }, [getTotalProjects, getLastProject, getTotalTeamMembers, fetchTotalPosts]);
 
   // Safe value formatting
   const formatTotalProjects = () => {
@@ -189,9 +196,9 @@ export default function Dashboard() {
       loading: teamLoading
     },
     { 
-      title: "Active Projects", 
-      value: formatTotalProjects(), 
-      icon: FaProjectDiagram, 
+      title: "Total Posts", 
+      value: totalPosts,
+      icon: FaProjectDiagram,
       color: "purple",
       loading: projectLoading
     },
