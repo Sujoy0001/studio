@@ -15,7 +15,7 @@ export const frontendDesigns = [
       img: client1,
       name: "Tarapada Garai",
       role: "Creater of Cheatroom",
-      text: "We are extremely happy with the frontend and UI development done by the team. The platform is clean, intuitive, and user-friendly, making it easy to create temporary chat rooms and communicate securely. The integration of Gemini features for summaries, translations, and smart replies works flawlessly. The final product perfectly captures our vision for a private, seamless chat experience.",
+      text: "We are very pleased with the team's work on the front end and user interface.  The platform is clean, simple, and easy to use, which makes it simple to set up temporary chat rooms and talk safely.  The summaries, translations, and smart replies that come with Gemini work perfectly when they are combined.  The final product is a perfect representation of our idea for a private chat experience that works well.",
     },
     liveLink: "https://roomforcheat.vercel.app",
   },
