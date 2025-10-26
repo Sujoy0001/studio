@@ -3,7 +3,8 @@ import {
     createPost,
     getAllPosts,
     editPost,
-    deletePost
+    deletePost,
+    totalPosts
 } from "../controllers/post.controller.js";
 import { verifyLogin } from "../middlewares/oauth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -14,5 +15,6 @@ router.route("/createPost").post(verifyLogin, upload.single("image"), createPost
 router.route("/getPosts").get(getAllPosts);
 router.route("/editPost/:postId").put(verifyLogin, editPost);
 router.route("/deletePost/:postId").delete(verifyLogin, deletePost);
+router.route("/totalPosts").get(totalPosts);
 
 export default router;
