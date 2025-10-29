@@ -1,14 +1,22 @@
 // src/pages/TeamMember.jsx
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { teamData } from "../constant/teamData";
 import { FaGithub, FaLinkedin, FaGlobe, FaFacebook, FaInstagram, FaXTwitter, FaDiscord, FaArrowLeft, FaEnvelope } from "react-icons/fa6";
+import teamStore from "../store/teamStore";
 
 const TeamMember = () => {
+  const { members, getAllTeamMembers } = teamStore();
   const { name } = useParams();
-  const member = teamData.find((m) => m.urlName === name);
 
-  if (!member) return <div className="text-center p-10 text-gray-600">Member not found</div>;
+  useEffect(() => {
+    if (members.length === 0) getAllTeamMembers();
+  }, []);
+
+  const member = teamData.find((m) => m.urlName === name) || members.find((m) => m.urlName === name);
+  const socials = member?.socials || {}; 
+
+  if (!member) return <div className="text-center px-10 py-32 text-black font-semibold text-4xl flex justify-center items-center italic">Member not found</div>;
 
   return (
     <div className="min-h-screen py-18 md:py-24 px-4 flex justify-center items-center">
@@ -28,9 +36,9 @@ const TeamMember = () => {
 
               {/* Social Icons */}
               <div className="flex gap-4 text-xl mb-6">
-                {member.socials.facebook && (
+                {socials.facebook && (
                   <a 
-                    href={member.socials.facebook} 
+                    href={socials.facebook} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="p-3 bg-blue-100 text-blue-600  rounded-xl hover:bg-blue-200 transition-all duration-200 hover:scale-110"
@@ -38,9 +46,9 @@ const TeamMember = () => {
                     <FaFacebook />
                   </a>
                 )}
-                {member.socials.instagram && (
+                {socials.instagram && (
                   <a 
-                    href={member.socials.instagram} 
+                    href={socials.instagram} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="p-3 bg-pink-100 text-pink-600 rounded-xl hover:bg-pink-200 transition-all duration-200 hover:scale-110"
@@ -48,9 +56,9 @@ const TeamMember = () => {
                     <FaInstagram />
                   </a>
                 )}
-                {member.socials.x && (
+                {socials.x && (
                   <a 
-                    href={member.socials.x} 
+                    href={socials.x} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="p-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200 hover:scale-110"
@@ -58,9 +66,9 @@ const TeamMember = () => {
                     <FaXTwitter />
                   </a>
                 )}
-                {member.socials.discord && (
+                {socials.discord && (
                   <a 
-                    href={member.socials.discord} 
+                    href={socials.discord} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="p-3 bg-indigo-200 text-indigo-600 rounded-xl hover:bg-indigo-200 transition-all duration-200 hover:scale-110"
@@ -120,7 +128,7 @@ const TeamMember = () => {
                     href={member.links.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+                    className="flex items-center gap-3 px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
                   >
                     <FaLinkedin className="text-lg" />
                     <span className="font-semibold">LinkedIn</span>
@@ -131,18 +139,18 @@ const TeamMember = () => {
                     href={member.links.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-6 py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-900 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+                    className="flex items-center gap-3 px-6 py-3 bg-gray-800 text-white rounded hover:bg-gray-900 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
                   >
                     <FaGithub className="text-lg" />
                     <span className="font-semibold">GitHub</span>
                   </a>
                 )}
-                {member.links.portfolio && (
+                {member.links?.portfolio && (
                   <a
                     href={member.links.portfolio}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+                    className="flex items-center gap-3 px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
                   >
                     <FaGlobe className="text-lg" />
                     <span className="font-semibold">Portfolio</span>

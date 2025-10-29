@@ -227,7 +227,7 @@ export default function Dashboard() {
     { 
       text: "Manage Members", 
       icon: FaUserCog, 
-      href: "manage-member", 
+      href: "manage-members", 
       className: "bg-gray-800 hover:bg-gray-600 text-white" 
     }
   ];
