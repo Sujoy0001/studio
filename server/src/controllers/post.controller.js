@@ -66,9 +66,15 @@ const deletePost = asyncHandler(async (req, res, next) => {
     return res.status(200).json(new ApiResponse(200, post, "Post deleted successfully"));
 });
 
+const totalPosts = asyncHandler(async (req, res, next) => {
+    const count = await Post.countDocuments();
+    return res.status(200).json(new ApiResponse(200, { totalPosts: count }, "Total posts count fetched successfully"));
+});
+
 export {
     createPost,
     getAllPosts,
     editPost,
-    deletePost
+    deletePost,
+    totalPosts
 };
