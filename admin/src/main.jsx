@@ -20,6 +20,10 @@ import {
 const router = createBrowserRouter([
   {
     path: "/",
+    element: <AuthenticatedUserRoute><App /></AuthenticatedUserRoute>,
+  },
+  {
+    path: "/index",
     element: <Layout01 />,
     children: [
       {
@@ -28,38 +32,35 @@ const router = createBrowserRouter([
         )
       },
       {
-        path: "add-project", element: (
+        path: "/index/add-project", element: (
           <ProtectRoute><AddProject /></ProtectRoute>
         )
       },
       {
-        path: "add-member", element: (
+        path: "/index/add-member", element: (
           <ProtectRoute><AddMember /></ProtectRoute>
         )
       },
       {
-        path: "manage-project", element: (
+        path: "/index/manage-project", element: (
           <ProtectRoute><ManageProject /></ProtectRoute>
         )
       },
       {
-        path: "manage-members", element: (
+        path: "/index/manage-members", element: (
           <ProtectRoute><ManageMembers /></ProtectRoute>
         )
       },
       {
-        path: "add-post", element: (
+        path: "/index/add-post", element: (
           <ProtectRoute><AddPostPage /></ProtectRoute>
         )
       },
       {
-        path: "manage-post", element: (
+        path: "/index/manage-post", element: (
           <ProtectRoute><ManagePostsPage /></ProtectRoute>
         )
       },
-      { path: "login", element: (
-        <AuthenticatedUserRoute><LoginPage /></AuthenticatedUserRoute>
-      ) },
     ]
   }
 ])

@@ -4,12 +4,12 @@ import userStore from "../store/userStore.js";
 
 const navItems = [
   { name: "Home", path: "/" },
-  { name: "Add Project", path: "/add-project" },
-  { name: "Add Member", path: "/add-member" },
-  { name: "Message Project", path: "/manage-project" },
-  { name: "Manage Members", path: "/manage-members" },
-  { name: "Add Post", path: "/add-post" },
-  { name: "Manage Post", path: "/manage-post" },
+  { name: "Add Project", path: "/index/add-project" },
+  { name: "Add Member", path: "/index/add-member" },
+  { name: "Message Project", path: "/index/manage-project" },
+  { name: "Manage Members", path: "/index/manage-members" },
+  { name: "Add Post", path: "/index/add-post" },
+  { name: "Manage Post", path: "/index/manage-post" },
 ];
 
 export default function Navbar() {
@@ -34,14 +34,14 @@ export default function Navbar() {
       setIsOpen(false);
       
       // Redirect to login page
-      navigate('/login'); 
+      navigate('/'); 
       
     } catch (error) {
       console.error('Logout failed:', error);
       // Even if API call fails, clear local storage and redirect
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('loginTime');
-      navigate('/login');
+      navigate('/');
     } finally {
       setIsLoggingOut(false);
     }

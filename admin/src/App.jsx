@@ -1,11 +1,14 @@
 import React from 'react'
 import './App.css'
+import LoginPage from './pages/LoginPage'
 
 function App() {
 
   return (
     <>
-      <h1>Hello team</h1>
+      <div className="flex justify-center items-center min-h-screen w-full">
+        <LoginPage />
+      </div>
     </>
   )
 }

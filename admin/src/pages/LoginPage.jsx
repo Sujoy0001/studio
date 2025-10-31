@@ -83,8 +83,8 @@ export default function LoginPage() {
         
         // Redirect to "/" after a short delay
         setTimeout(() => {
-          window.location.href = '/';
-        }, 1000);
+          window.location.href = '/index';
+        }, 500);
 
       } else {
         const newAttempts = attempts + 1;
@@ -134,7 +134,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+      <div className="min-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
           <div className="mx-auto w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-4">
@@ -225,7 +225,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={storeLoading || isLocked || !formData.email || !formData.password}
-              className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-zinc-800"
+              className="w-full flex cursor-pointer items-center justify-center gap-3 py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-zinc-800"
             >
               {storeLoading ? (
                 <>

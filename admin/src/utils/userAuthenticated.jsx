@@ -5,7 +5,7 @@ const ProtectRoute = ({children}) => {
     const {user,isAuthenticated} = userStore();
     
     if(!user && !isAuthenticated){
-        return <Navigate to="/login" replace />
+        return <Navigate to="/" replace />
     }
 
     return children
@@ -14,7 +14,7 @@ const ProtectRoute = ({children}) => {
 const AuthenticatedUserRoute = ({children}) => {
     const {user,isAuthenticated} = userStore();
     if(user && isAuthenticated){
-        return <Navigate to="/" replace />
+        return <Navigate to="/index" replace />
     }
 
     return children

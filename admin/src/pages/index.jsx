@@ -216,25 +216,25 @@ export default function Dashboard() {
     { 
       text: "Add New Project", 
       icon: FaPlus, 
-      href: "add-project", 
+      href: "/index/add-project", 
       className: "bg-blue-800 hover:bg-blue-600 text-white" 
     },
     { 
       text: "Add New Member", 
       icon: FaUsers, 
-      href: "add-member", 
+      href: "/index/add-member", 
       className: "bg-green-800 hover:bg-green-600 text-white" 
     },
     { 
       text: "Manage Projects", 
       icon: FaEnvelope, 
-      href: "manage-project", 
+      href: "/index/manage-project", 
       className: "bg-yellow-800 hover:bg-yellow-600 text-white" 
     },
     { 
       text: "Manage Members", 
       icon: FaUserCog, 
-      href: "manage-members", 
+      href: "/index/manage-members", 
       className: "bg-gray-800 hover:bg-gray-600 text-white" 
     }
   ];
