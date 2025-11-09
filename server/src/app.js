@@ -4,21 +4,36 @@ import helmet from "helmet";
 import cookieParser from "cookie-parser"
 
 const app = express()
-app.use(cors({
-    origin: function (origin, callback) {
-        const allowedOrigins = [
-            ...(process.env.FIRST_ORIGIN ? [process.env.FIRST_ORIGIN] : []),
-            ...(process.env.SECOND_ORIGIN ? [process.env.SECOND_ORIGIN] : [])
-        ];
 
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error(`Origin ${origin} not allowed by CORS`));
-        }
-    },
-    credentials: true
+const allowedOrigins = [
+  process.env.FIRST_ORIGIN,
+  process.env.SECOND_ORIGIN,
+].filter(Boolean);
+
+app.use((req, res, next) => {
+  console.log("🧭 Incoming Origin header:", req.headers.origin);
+  next();
+});
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) {
+      console.log("🚫 CORS: request has no Origin header — denying (for safety)");
+      return callback(new Error("CORS: No Origin header"));
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      console.log("✅ CORS Allowed origin:", origin);
+      callback(null, origin);
+    } else {
+      console.log("❌ CORS Blocked origin:", origin, "Allowed:", allowedOrigins);
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200
 }));
+
 app.use(helmet());
 app.use(express.json())
 app.use(express.urlencoded())
