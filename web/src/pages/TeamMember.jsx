@@ -14,7 +14,7 @@ const TeamMember = () => {
   }, []);
 
   const member = teamData.find((m) => m.urlName === name) || members.find((m) => m.urlName === name);
-  const socials = member?.socials || {}; 
+  const socials = member?.linkDetails?.socials || {}; 
 
   if (!member) return <div className="text-center px-10 py-32 text-black font-semibold text-4xl flex justify-center items-center italic">Member not found</div>;
 
@@ -123,9 +123,9 @@ const TeamMember = () => {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-4 mt-12">
-                {member.links.linkedin && (
+                {member?.linkDetails?.links?.linkedin && (
                   <a
-                    href={member.links.linkedin}
+                    href={member?.linkDetails?.links?.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
@@ -134,9 +134,9 @@ const TeamMember = () => {
                     <span className="font-semibold">LinkedIn</span>
                   </a>
                 )}
-                {member.links.github && (
+                {member?.linkDetails?.links?.github && (
                   <a
-                    href={member.links.github}
+                    href={member?.linkDetails?.links?.github}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 px-6 py-3 bg-gray-800 text-white rounded hover:bg-gray-900 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
@@ -145,9 +145,9 @@ const TeamMember = () => {
                     <span className="font-semibold">GitHub</span>
                   </a>
                 )}
-                {member.links?.portfolio && (
+                {member?.linkDetails?.links?.portfolio && (
                   <a
-                    href={member.links.portfolio}
+                    href={member?.linkDetails?.links?.portfolio}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"

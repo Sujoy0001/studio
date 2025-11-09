@@ -24,10 +24,11 @@ const AddMember = () => {
     img: '',
     urlName: '',
   });
-  
+
   const [newSkill, setNewSkill] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [isFile, setIsFile] = useState(false);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -83,26 +84,31 @@ const AddMember = () => {
   // Simulate image upload
   const handleImageUpload = async (file) => {
     setUploadingImage(true);
-    
+
     try {
-      // Simulate upload process
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // In a real app, you would upload to a service like Cloudinary, AWS S3, etc.
-      const imageUrl = URL.createObjectURL(file);
-      setFormData(prev => ({ ...prev, img: imageUrl }));
+      // Create preview for UI only
+      const previewUrl = URL.createObjectURL(file);
+
+      // Store the actual file (not URL)
+      setFormData(prev => ({
+        ...prev,
+        img: file, // store file object for FormData
+        preview: previewUrl, // optional preview for display
+      }));
     } catch (error) {
       console.error('Error uploading image:', error);
-      alert('Error uploading image. Please try again.');
     } finally {
       setUploadingImage(false);
     }
   };
 
+
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       if (file.type.startsWith('image/')) {
+        setIsFile(true);
         handleImageUpload(file);
       } else {
         alert('Please select a valid image file.');
@@ -113,7 +119,8 @@ const AddMember = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
+    console.log("is file", isFile);
+
     try {
       // Prepare data for API - merge links and socials into single links object
       const apiData = {
@@ -126,14 +133,36 @@ const AddMember = () => {
           ...formData.links,
           ...formData.socials
         },
-        img: formData.img,
+        img: formData.preview,
         urlName: formData.urlName
       };
-      console.log("Submitting team member data:", apiData);
-      
+      // console.log("Submitting team member data:", apiData);
+
+      const formDataToSend = new FormData();
+      // Append simple fields
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('role', formData.role);
+      formDataToSend.append('description', formData.description);
+      formDataToSend.append('email', formData.email);
+      formDataToSend.append('urlName', formData.urlName);
+
+      // Append array (skills) as JSON string
+      formDataToSend.append('skills', JSON.stringify(formData.skills));
+
+      // Merge links and socials
+      const mergedLinks = { ...formData.links, ...formData.socials };
+      formDataToSend.append('links', JSON.stringify(mergedLinks));
+
+      // Append image (make sure it’s a file)
+      if (formData.img) {
+        formDataToSend.append('img', formData.img);
+      }
+
+      console.log("submit Data", isFile ? formDataToSend : apiData);
+
       // Call the actual API through your store
-      await createTeamMember(apiData);
-      
+      await createTeamMember(isFile ? formDataToSend : apiData);
+
       // Reset form after successful submission
       setFormData({
         name: '',
@@ -155,10 +184,11 @@ const AddMember = () => {
         img: '',
         urlName: '',
       });
-      
+      setIsFile(false);
+
       // Success message is handled by the store
       alert('Member added successfully!');
-      
+
     } catch (error) {
       console.error('Error adding member:', error);
       // Error message is already set in the store, but show alert for user feedback
@@ -194,20 +224,21 @@ const AddMember = () => {
               <div className="flex flex-col sm:flex-row gap-6 items-start">
                 <div className="flex-shrink-0">
                   <div className="w-32 h-32 bg-zinc-700 rounded-lg border-2 border-dashed border-zinc-600 overflow-hidden">
-                    {formData.img ? (
+                    {formData.preview ? (
                       <img
-                        src={formData.img}
+                        src={formData.preview}
                         alt="Profile preview"
                         className="w-full h-full object-cover"
                       />
                     ) : (
+
                       <div className="w-full h-full flex items-center justify-center">
                         <ImageIcon className="w-8 h-8 text-zinc-500" />
                       </div>
                     )}
                   </div>
                 </div>
-                
+
                 <div className="flex-1 space-y-3">
                   <div>
                     <label className="block text-xs font-medium text-zinc-400 mb-2">
@@ -237,8 +268,8 @@ const AddMember = () => {
                     </label>
                     <input
                       type="url"
-                      value={formData.img}
-                      onChange={(e) => handleInputChange('img', e.target.value)}
+                      value={formData.preview || ''}
+                      onChange={(e) => handleInputChange('preview', e.target.value)}
                       className="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-zinc-400 text-sm"
                       placeholder="https://example.com/profile.jpg"
                     />

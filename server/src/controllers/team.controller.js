@@ -7,60 +7,99 @@ import { uploadOnCloudinary, deleteFromCloudinary, getPublicId } from "../utils/
 import mongoose from "mongoose";
 
 const bufferToBase64 = (buffer, mimetype) =>
-    `data:${mimetype};base64,${buffer.toString("base64")}`;
+  `data:${mimetype};base64,${buffer.toString('base64')}`;
 
 const createTeamMember = asyncHandler(async (req, res, next) => {
-    const { name, role, description, skills, email, links, img, urlName } = req.body;
-    if (!name || !role || !skills.length || !email || !urlName) {
-        throw new ApiError(400, "Name, role, skills, email, and urlName are required");
-    }
-    const existingMember = await Team.findOne({ email });
-    if (existingMember) {
-        throw new ApiError(409, "Team member with this email already exists");
-    }
-    const checkUrlName = await Team.findOne({ urlName });
-    if (checkUrlName) {
-        throw new ApiError(409, "Team member with this urlName already exists");
-    }
-    let imgMongo = img;
-    if (req.file) {
-        const { buffer, mimetype } = req.file;
-        const base64Image = bufferToBase64(buffer, mimetype);
-        const uploadResult = await uploadOnCloudinary(base64Image, "image");
-        imgMongo = uploadResult.secure_url;
-    }
-    console.log("Links data:", links);
+  const { name, role, description, email, urlName } = req.body;
+  let { skills, links, img } = req.body;
 
-    const linkDoc = links ? await Link.create({
-        links: {
-            linkedin: links.linkedin || "",
-            github: links.github || "",
-            portfolio: links.portfolio || "",
-        },
-        socials: {
-            facebook: links.facebook || "",
-            instagram: links.instagram || "",
-            x: links.x || "",
-            discord: links.discord || "",
-        },
-    }) : null;
+  let skillParsed = [];
+  let linksParsed = {};
 
-    const teamMember = await Team.create({
-        name: name,
-        role,
-        description,
-        skills,
-        email,
-        links: linkDoc ? linkDoc._id : null,
-        img: imgMongo,
-        urlName
-    });
-    if (!teamMember) {
-        throw new ApiError(500, "Team member creation failed");
+  try {
+    if (typeof skills === 'string' && skills.trim() !== '') {
+      skillParsed = JSON.parse(skills);
+    } else if (Array.isArray(skills)) {
+      skillParsed = skills;
+    } else {
+      skillParsed = [];
     }
+  } catch (err) {
+    throw new ApiError(400, 'Invalid JSON format for skills');
+  }
 
-    return res.status(201).json(new ApiResponse(201, teamMember, "Team member created successfully"));
+  try {
+    if (typeof links === 'string' && links.trim() !== '') {
+      linksParsed = JSON.parse(links);
+    } else if (typeof links === 'object' && links !== null) {
+      linksParsed = links;
+    } else {
+      linksParsed = {};
+    }
+  } catch (err) {
+    throw new ApiError(400, 'Invalid JSON format for links');
+  }
+
+  if (!name || !role || !email || !urlName) {
+    throw new ApiError(400, 'Name, role, email and urlName are required');
+  }
+  if (!Array.isArray(skillParsed) || skillParsed.length === 0) {
+    throw new ApiError(400, 'At least one skill is required');
+  }
+
+  const existingMember = await Team.findOne({ email });
+  if (existingMember) {
+    throw new ApiError(409, 'Team member with this email already exists');
+  }
+  const checkUrlName = await Team.findOne({ urlName });
+  if (checkUrlName) {
+    throw new ApiError(409, 'Team member with this urlName already exists');
+  }
+
+  let imgMongo = img || null;
+
+  if (req.file && req.file.buffer) {
+    const { buffer, mimetype } = req.file;
+    const base64Image = bufferToBase64(buffer, mimetype);
+
+    const uploadResult = await uploadOnCloudinary(base64Image, 'image');
+    imgMongo = uploadResult.secure_url;
+  }
+
+  // If you previously stored links in a separate Link collection, create it here
+  const linkDoc = await Link.create({
+    links: {
+      linkedin: linksParsed.linkedin || '',
+      github: linksParsed.github || '',
+      portfolio: linksParsed.portfolio || '',
+    },
+    socials: {
+      facebook: linksParsed.facebook || '',
+      instagram: linksParsed.instagram || '',
+      x: linksParsed.x || '',
+      discord: linksParsed.discord || '',
+    },
+  });
+
+  // Create team member using parsed values
+  const teamMember = await Team.create({
+    name,
+    role,
+    description,
+    skills: skillParsed,
+    email,
+    links: linkDoc._id,
+    img: imgMongo,
+    urlName,
+  });
+
+  if (!teamMember) {
+    throw new ApiError(500, 'Team member creation failed');
+  }
+
+  return res.status(201).json(new ApiResponse(201, teamMember, 'Team member created successfully'));
 });
+
 
 const getAllTeamMembers = asyncHandler(async (req, res, next) => {
     const teamMembers = await Team.aggregate([
