@@ -21,6 +21,6 @@ export const teamData = [
       discord: "",
     },
     img: sujoyimg,
-    urlName: "sujoy", // used in /team/sujoy-garai
+    urlName: "sujoygarai", // used in /team/sujoy-garai
   },
 ];
