@@ -10,9 +10,9 @@ import { IoIosArrowUp } from 'react-icons/io';
 // --- Data for social links for easy management ---
 const socialLinks = [
   { icon: <FaFacebookF />, href: '#', 'aria-label': 'Facebook page' },
-  { icon: <FaInstagram />, href: '#', 'aria-label': 'Instagram profile' },
-  { icon: <FaTwitter />, href: '#', 'aria-label': 'Twitter profile' },
-  { icon: <FaLinkedinIn />, href: '#', 'aria-label': 'LinkedIn profile' },
+  { icon: <FaInstagram />, href: 'https://www.instagram.com/revox_studio/?hl=en', 'aria-label': 'Instagram profile' },
+  { icon: <FaTwitter />, href: 'https://x.com/RevoxStudio', 'aria-label': 'Twitter profile' },
+  { icon: <FaLinkedinIn />, href: 'https://www.linkedin.com/company/revox-studio', 'aria-label': 'LinkedIn profile' },
 ];
 
 export default function Footer() {
